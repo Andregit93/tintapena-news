@@ -1,0 +1,413 @@
+Project TINTAPENA {
+  database_type: "MySQL"
+  Note: "TINTAPENA V1 Database Schema"
+}
+
+Enum article_status {
+  draft
+  scheduled
+  published
+  archived
+}
+
+Table users {
+  id bigint [pk, increment]
+
+  name varchar(255) [not null]
+  email varchar(255) [not null, unique]
+  password varchar(255) [not null]
+
+  remember_token varchar(100)
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table categories {
+  id bigint [pk, increment]
+
+  name varchar(150) [not null]
+  slug varchar(180) [not null, unique]
+  description text
+
+  is_active boolean [not null, default: true]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    is_active
+  }
+}
+
+Table regions {
+  id bigint [pk, increment]
+
+  name varchar(150) [not null]
+  slug varchar(180) [not null, unique]
+  description text
+
+  is_active boolean [not null, default: true]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    is_active
+  }
+}
+
+Table tags {
+  id bigint [pk, increment]
+
+  name varchar(150) [not null]
+  slug varchar(180) [not null, unique]
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table media {
+  id bigint [pk, increment]
+
+  uploaded_by bigint
+
+  disk varchar(50) [not null, default: "public"]
+  path varchar(500) [not null]
+  filename varchar(255) [not null]
+  original_filename varchar(255)
+
+  mime_type varchar(100)
+  extension varchar(20)
+
+  size bigint
+  width int
+  height int
+
+  alt_text varchar(255)
+  caption text
+  photo_credit varchar(255)
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    uploaded_by
+    mime_type
+  }
+}
+
+Table articles {
+  id bigint [pk, increment]
+
+  author_id bigint [not null]
+  category_id bigint [not null]
+  region_id bigint
+  featured_media_id bigint
+
+  title varchar(255) [not null]
+  subtitle text
+  slug varchar(255) [not null, unique]
+  excerpt text
+  content text
+
+  status article_status [not null, default: "draft"]
+
+  scheduled_at timestamp
+  published_at timestamp
+  archived_at timestamp
+
+  seo_title varchar(255)
+  meta_description varchar(320)
+
+  views_count bigint [not null, default: 0]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    author_id
+    category_id
+    region_id
+    featured_media_id
+    status
+    published_at
+
+    (status, published_at)
+    (category_id, status, published_at)
+    (region_id, status, published_at)
+  }
+}
+
+Table article_tag {
+  article_id bigint [not null]
+  tag_id bigint [not null]
+
+  indexes {
+    (article_id, tag_id) [pk]
+    tag_id
+  }
+}
+
+Ref: articles.author_id > users.id
+Ref: articles.category_id > categories.id
+Ref: articles.region_id > regions.id
+Ref: articles.featured_media_id > media.id
+
+Ref: media.uploaded_by > users.id
+
+Ref: article_tag.article_id > articles.id
+Ref: article_tag.tag_id > tags.id
+
+Enum page_status {
+  draft
+  published
+}
+
+Enum advertisement_type {
+  image
+  script
+}
+
+Enum contact_status {
+  unread
+  read
+  archived
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| HOMEPAGE MANAGER
+|--------------------------------------------------------------------------
+*/
+
+Table homepage_slots {
+  id bigint [pk, increment]
+
+  slot_key varchar(100) [not null, unique]
+  slot_name varchar(150) [not null]
+
+  article_id bigint
+  updated_by bigint
+
+  sort_order int [not null, default: 0]
+  is_active boolean [not null, default: true]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    article_id
+    is_active
+    sort_order
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| BREAKING NEWS
+|--------------------------------------------------------------------------
+*/
+
+Table breaking_news {
+  id bigint [pk, increment]
+
+  article_id bigint
+  created_by bigint
+
+  headline varchar(255)
+  target_url varchar(500)
+
+  starts_at timestamp
+  ends_at timestamp
+
+  is_active boolean [not null, default: false]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    article_id
+    is_active
+    starts_at
+    ends_at
+
+    (is_active, starts_at, ends_at)
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ARTICLE POPULARITY
+|--------------------------------------------------------------------------
+|
+| Statistik disimpan per jam agar ranking 24 jam dan 7 hari
+| tidak membutuhkan tabel satu baris untuk setiap page view.
+|
+*/
+
+Table article_view_stats {
+  id bigint [pk, increment]
+
+  article_id bigint [not null]
+
+  period_start datetime [not null]
+  views_count bigint [not null, default: 0]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (article_id, period_start) [unique]
+    period_start
+    views_count
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ADVERTISEMENTS
+|--------------------------------------------------------------------------
+*/
+
+Table advertisements {
+  id bigint [pk, increment]
+
+  name varchar(255) [not null]
+
+  type advertisement_type [not null]
+
+  placement_key varchar(100) [not null]
+
+  media_id bigint
+
+  content text
+  target_url varchar(500)
+
+  starts_at timestamp
+  ends_at timestamp
+
+  is_active boolean [not null, default: true]
+  sort_order int [not null, default: 0]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    placement_key
+    is_active
+    starts_at
+    ends_at
+
+    (placement_key, is_active)
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| STATIC PAGES
+|--------------------------------------------------------------------------
+*/
+
+Table pages {
+  id bigint [pk, increment]
+
+  title varchar(255) [not null]
+  slug varchar(255) [not null, unique]
+
+  content text [not null]
+
+  status page_status [not null, default: "draft"]
+
+  seo_title varchar(255)
+  meta_description varchar(320)
+
+  published_at timestamp
+
+  created_by bigint
+  updated_by bigint
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    status
+    published_at
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| WEBSITE SETTINGS
+|--------------------------------------------------------------------------
+*/
+
+Table settings {
+  id bigint [pk, increment]
+
+  group_name varchar(100) [not null]
+  setting_key varchar(150) [not null, unique]
+
+  value text
+  value_type varchar(50) [not null, default: "string"]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    group_name
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CONTACT FORM
+|--------------------------------------------------------------------------
+*/
+
+Table contact_messages {
+  id bigint [pk, increment]
+
+  name varchar(255) [not null]
+  email varchar(255) [not null]
+  subject varchar(255) [not null]
+
+  message text [not null]
+
+  status contact_status [not null, default: "unread"]
+
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    status
+    created_at
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| RELATIONSHIPS
+|--------------------------------------------------------------------------
+*/
+
+Ref: homepage_slots.article_id > articles.id
+Ref: homepage_slots.updated_by > users.id
+
+Ref: breaking_news.article_id > articles.id
+Ref: breaking_news.created_by > users.id
+
+Ref: article_view_stats.article_id > articles.id
+
+Ref: advertisements.media_id > media.id
+
+Ref: pages.created_by > users.id
+Ref: pages.updated_by > users.id

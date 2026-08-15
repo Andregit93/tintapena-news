@@ -1,0 +1,281 @@
+{
+  "project": "TINTAPENA",
+  "purpose": "Visual reference package for Antigravity/Laravel implementation",
+  "source": "Figma exports supplied by user",
+  "rules": [
+    "Do not redesign the UI.",
+    "Use DESIGN.md for design tokens and global design rules.",
+    "Use docs/06-DESIGN-HANDOFF.md for page/component mapping.",
+    "Use the matching desktop and mobile PNGs when implementing a screen.",
+    "Treat visible content in PNGs as mock content unless specified otherwise."
+  ],
+  "screens": [
+    {
+      "area": "public",
+      "feature_ids": [
+        "HOME-001"
+      ],
+      "screen": "Homepage",
+      "desktop": "design-reference/public/homepage-desktop.png",
+      "mobile": "design-reference/public/homepage-mobile.png",
+      "route": "/"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "PUBLIC-001",
+        "PUBLIC-002",
+        "PUBLIC-003"
+      ],
+      "screen": "Article Detail",
+      "desktop": "design-reference/public/article-detail-desktop.png",
+      "mobile": "design-reference/public/article-detail-mobile.png",
+      "route": "/berita/{article:slug}"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "LIST-003"
+      ],
+      "screen": "Category",
+      "desktop": "design-reference/public/category-desktop.png",
+      "mobile": "design-reference/public/category-mobile.png",
+      "route": "/kategori/{category:slug}"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "LIST-004"
+      ],
+      "screen": "Region",
+      "desktop": "design-reference/public/region-desktop.png",
+      "mobile": "design-reference/public/region-mobile.png",
+      "route": "/wilayah/{region:slug}"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "LIST-001"
+      ],
+      "screen": "Latest News",
+      "desktop": "design-reference/public/latest-news-desktop.png",
+      "mobile": "design-reference/public/latest-news-mobile.png",
+      "route": "/terbaru"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "LIST-002"
+      ],
+      "screen": "Popular News",
+      "desktop": "design-reference/public/popular-news-desktop.png",
+      "mobile": "design-reference/public/popular-news-mobile.png",
+      "route": "/terpopuler"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "SEARCH-001",
+        "SEARCH-002",
+        "SEARCH-003"
+      ],
+      "screen": "Search Results",
+      "desktop": "design-reference/public/search-results-desktop.png",
+      "mobile": "design-reference/public/search-results-mobile.png",
+      "route": "/cari"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "LIST-005"
+      ],
+      "screen": "Tag / Topic",
+      "desktop": "design-reference/public/tag-desktop.png",
+      "mobile": "design-reference/public/tag-mobile.png",
+      "route": "/topik/{tag:slug}"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "PAGE-002"
+      ],
+      "screen": "Static Page",
+      "desktop": "design-reference/public/static-page-desktop.png",
+      "mobile": "design-reference/public/static-page-mobile.png",
+      "route": "/{page:slug}"
+    },
+    {
+      "area": "public",
+      "feature_ids": [
+        "CONTACT-001",
+        "CONTACT-002"
+      ],
+      "screen": "Contact",
+      "desktop": "design-reference/public/contact-desktop.png",
+      "mobile": "design-reference/public/contact-mobile.png",
+      "route": "/kontak"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "AUTH-001"
+      ],
+      "screen": "Login",
+      "desktop": "design-reference/admin/login-desktop.png",
+      "mobile": "design-reference/admin/login-mobile.png",
+      "route": "/admin/login"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "DASH-001"
+      ],
+      "screen": "Dashboard",
+      "desktop": "design-reference/admin/dashboard-desktop.png",
+      "mobile": "design-reference/admin/dashboard-mobile.png",
+      "route": "/admin"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "ARTICLE-010"
+      ],
+      "screen": "Article List",
+      "desktop": "design-reference/admin/article-list-desktop.png",
+      "mobile": "design-reference/admin/article-list-mobile.png",
+      "route": "/admin/berita"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "ARTICLE-001",
+        "ARTICLE-002",
+        "ARTICLE-003",
+        "ARTICLE-004",
+        "ARTICLE-005",
+        "ARTICLE-006",
+        "ARTICLE-007",
+        "ARTICLE-008",
+        "ARTICLE-009"
+      ],
+      "screen": "Article Editor",
+      "desktop": "design-reference/admin/article-editor-desktop.png",
+      "mobile": "design-reference/admin/article-editor-mobile.png",
+      "route": "/admin/berita/*"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "MEDIA-001",
+        "MEDIA-002",
+        "MEDIA-003",
+        "MEDIA-004"
+      ],
+      "screen": "Media Library",
+      "desktop": "design-reference/admin/media-library-desktop.png",
+      "mobile": "design-reference/admin/media-library-mobile.png",
+      "route": "/admin/media"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "CATEGORY-001",
+        "CATEGORY-002",
+        "CATEGORY-003",
+        "CATEGORY-004"
+      ],
+      "screen": "Categories",
+      "desktop": "design-reference/admin/categories-desktop.png",
+      "mobile": "design-reference/admin/categories-mobile.png",
+      "route": "/admin/kategori"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "REGION-001",
+        "REGION-002",
+        "REGION-003"
+      ],
+      "screen": "Regions",
+      "desktop": "design-reference/admin/regions-desktop.png",
+      "mobile": "design-reference/admin/regions-mobile.png",
+      "route": "/admin/wilayah"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "TAG-001",
+        "TAG-002",
+        "TAG-003",
+        "TAG-004"
+      ],
+      "screen": "Tags",
+      "desktop": "design-reference/admin/tags-desktop.png",
+      "mobile": "design-reference/admin/tags-mobile.png",
+      "route": "/admin/tag"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "HOME-002",
+        "HOME-003",
+        "HOME-004",
+        "HOME-005"
+      ],
+      "screen": "Homepage Manager",
+      "desktop": "design-reference/admin/homepage-manager-desktop.png",
+      "mobile": "design-reference/admin/homepage-manager-mobile.png",
+      "route": "/admin/homepage"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "BREAKING-001",
+        "BREAKING-002",
+        "BREAKING-003",
+        "BREAKING-004"
+      ],
+      "screen": "Breaking News Manager",
+      "desktop": "design-reference/admin/breaking-news-desktop.png",
+      "mobile": "design-reference/admin/breaking-news-mobile.png",
+      "route": "/admin/breaking-news"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "ADS-001",
+        "ADS-002",
+        "ADS-003",
+        "ADS-004"
+      ],
+      "screen": "Advertisements",
+      "desktop": "design-reference/admin/advertisements-desktop.png",
+      "mobile": "design-reference/admin/advertisements-mobile.png",
+      "route": "/admin/iklan"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "PAGE-001"
+      ],
+      "screen": "Static Pages",
+      "desktop": "design-reference/admin/pages-desktop.png",
+      "mobile": "design-reference/admin/pages-mobile.png",
+      "route": "/admin/halaman"
+    },
+    {
+      "area": "admin",
+      "feature_ids": [
+        "SETTINGS-001",
+        "SETTINGS-002",
+        "SETTINGS-003",
+        "SETTINGS-004",
+        "SETTINGS-005"
+      ],
+      "screen": "Website Settings",
+      "desktop": "design-reference/admin/settings-desktop.png",
+      "mobile": "design-reference/admin/settings-mobile.png",
+      "route": "/admin/pengaturan"
+    }
+  ]
+}
