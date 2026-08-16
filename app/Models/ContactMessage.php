@@ -11,8 +11,6 @@ class ContactMessage extends Model
     /** @use HasFactory<\Database\Factories\ContactMessageFactory> */
     use HasFactory;
 
-    protected $guarded = [];
-
     protected function casts(): array
     {
         return [

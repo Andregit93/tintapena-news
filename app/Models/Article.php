@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+#[Fillable(['title', 'subtitle', 'slug', 'excerpt', 'content', 'seo_title', 'meta_description', 'category_id', 'region_id', 'featured_media_id'])]
 class Article extends Model
 {
     /** @use HasFactory<\Database\Factories\ArticleFactory> */
     use HasFactory;
-
-    protected $guarded = [];
 
     protected function casts(): array
     {

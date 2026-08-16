@@ -6,18 +6,19 @@ use App\Enums\ArticleStatus;
 use App\Filament\Resources\Articles\ArticleResource;
 use Filament\Resources\Pages\CreateRecord;
 
+use Illuminate\Database\Eloquent\Model;
+
 class CreateArticle extends CreateRecord
 {
     protected static string $resource = ArticleResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        $data['author_id'] = auth()->id();
-        $data['status'] = ArticleStatus::Draft->value;
-        unset($data['published_at']);
-        unset($data['scheduled_at']);
-        unset($data['archived_at']);
+        $record = new ($this->getModel())($data);
+        $record->author_id = auth()->id();
+        $record->status = ArticleStatus::Draft;
+        $record->save();
 
-        return $data;
+        return $record;
     }
 }

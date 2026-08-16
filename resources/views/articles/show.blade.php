@@ -89,7 +89,7 @@
         @endif
         
         <!-- Article Body -->
-        <div class="prose prose-lg max-w-none prose-a:text-[#1A2BC4] prose-headings:font-bold prose-headings:text-[#17191D] text-[#17191D] prose-p:leading-[1.8] prose-p:mb-6 mb-12">
+        <div class="article-content">
             {!! str($article->content)->sanitizeHtml() !!}
         </div>
         

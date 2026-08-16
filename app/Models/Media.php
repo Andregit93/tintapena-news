@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+#[Fillable(['path', 'original_filename', 'alt_text', 'caption', 'photo_credit'])]
 class Media extends Model
 {
     /** @use HasFactory<\Database\Factories\MediaFactory> */
     use HasFactory;
-
-    protected $guarded = [];
 
     protected function casts(): array
     {

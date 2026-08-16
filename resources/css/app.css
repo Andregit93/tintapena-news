@@ -7,3 +7,93 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* TINTAPENA Article Typography */
+.article-content {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1.75;
+    color: #374151; /* gray-700 */
+    font-size: 1.125rem; /* text-lg */
+}
+.article-content p {
+    margin-bottom: 1.25em;
+}
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+    color: #111827; /* gray-900 */
+    font-weight: 700;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    line-height: 1.3333333;
+}
+.article-content h2 { font-size: 1.5em; }
+.article-content h3 { font-size: 1.25em; }
+.article-content h4 { font-size: 1.1em; }
+.article-content strong {
+    font-weight: 600;
+    color: #111827;
+}
+.article-content em {
+    font-style: italic;
+}
+.article-content a {
+    color: #2563eb; /* blue-600 */
+    text-decoration: underline;
+    font-weight: 500;
+}
+.article-content a:hover {
+    color: #1d4ed8;
+}
+.article-content ul,
+.article-content ol {
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+}
+.article-content li {
+    margin-bottom: 0.5em;
+}
+.article-content ul { list-style-type: disc; }
+.article-content ol { list-style-type: decimal; }
+.article-content blockquote {
+    font-weight: 500;
+    font-style: italic;
+    color: #111827;
+    border-left: 0.25rem solid #e5e7eb;
+    margin-top: 1.6em;
+    margin-bottom: 1.6em;
+    padding-left: 1em;
+}
+.article-content figure {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.375rem;
+}
+.article-content figcaption {
+    color: #6b7280;
+    font-size: 0.875em;
+    text-align: center;
+    margin-top: 0.8571429em;
+}
+.article-content table {
+    width: 100%;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+}
+.article-content th,
+.article-content td {
+    padding: 0.5714286em 0.8571429em;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+.article-content th {
+    font-weight: 600;
+    color: #111827;
+}

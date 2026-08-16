@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+#[Fillable(['slot_key', 'slot_name', 'article_id', 'sort_order', 'is_active'])]
 class HomepageSlot extends Model
 {
     /** @use HasFactory<\Database\Factories\HomepageSlotFactory> */
     use HasFactory;
-
-    protected $guarded = [];
 
     protected function casts(): array
     {

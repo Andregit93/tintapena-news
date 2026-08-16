@@ -49,8 +49,11 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
         "test": [
-            "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
+        ],
+        "test:mysql": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test --configuration phpunit.mysql.xml --testsuite=MySQLParity"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Filament\Support\Facades\FilamentTimezone;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Filament\Support\Facades\FilamentTimezone::set('Asia/Jakarta');
+        Model::preventSilentlyDiscardingAttributes($this->app->isLocal());
+        FilamentTimezone::set('Asia/Jakarta');
     }
 }

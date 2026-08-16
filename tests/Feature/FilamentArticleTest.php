@@ -178,7 +178,7 @@ it('multiple tags persist correctly', function () {
     expect($article->tags)->toHaveCount(3);
 });
 
-it('article Draft can be edited without unintentionally changing status', function () {
+it('published article can be edited without unintentionally reverting status to draft', function () {
     actingAs($this->admin);
     $category = Category::factory()->create(['is_active' => true]);
     $article = Article::factory()->create([

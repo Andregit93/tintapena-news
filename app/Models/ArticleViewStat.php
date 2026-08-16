@@ -11,8 +11,6 @@ class ArticleViewStat extends Model
     /** @use HasFactory<\Database\Factories\ArticleViewStatFactory> */
     use HasFactory;
 
-    protected $guarded = [];
-
     protected function casts(): array
     {
         return [

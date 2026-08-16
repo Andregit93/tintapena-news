@@ -15,37 +15,35 @@ class ManageMedia extends ManageRecords
     {
         return [
             CreateAction::make()
-                ->mutateFormDataUsing(function (array $data): array {
-                    $data['uploaded_by'] = auth()->id();
-                    $data['disk'] = 'public';
-
-                    // Ensure we don't allow arbitrary uploaded_by from client
-                    if (isset($data['uploaded_by']) && $data['uploaded_by'] !== auth()->id()) {
-                        $data['uploaded_by'] = auth()->id();
-                    }
+                ->using(function (array $data, string $model): \Illuminate\Database\Eloquent\Model {
+                    $record = new $model($data);
+                    $record->uploaded_by = auth()->id();
+                    $record->disk = 'public';
 
                     if (isset($data['path'])) {
                         $path = $data['path'];
                         $fullPath = Storage::disk('public')->path($path);
 
                         if (file_exists($fullPath)) {
-                            $data['filename'] = basename($path);
-                            $data['extension'] = pathinfo($fullPath, PATHINFO_EXTENSION);
-                            $data['size'] = filesize($fullPath);
-                            $data['mime_type'] = mime_content_type($fullPath);
+                            $record->filename = basename($path);
+                            $record->extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+                            $record->size = filesize($fullPath);
+                            $record->mime_type = mime_content_type($fullPath);
 
                             // Extract dimensions for images
-                            if (str_starts_with($data['mime_type'], 'image/')) {
+                            if (str_starts_with($record->mime_type, 'image/')) {
                                 $sizeInfo = @getimagesize($fullPath);
                                 if ($sizeInfo) {
-                                    $data['width'] = $sizeInfo[0];
-                                    $data['height'] = $sizeInfo[1];
+                                    $record->width = $sizeInfo[0];
+                                    $record->height = $sizeInfo[1];
                                 }
                             }
                         }
                     }
 
-                    return $data;
+                    $record->save();
+
+                    return $record;
                 }),
         ];
     }

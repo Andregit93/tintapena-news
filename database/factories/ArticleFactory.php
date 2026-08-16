@@ -29,14 +29,43 @@ class ArticleFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the article is published.
-     */
+    public function draft(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => ArticleStatus::Draft,
+            'scheduled_at' => null,
+            'published_at' => null,
+            'archived_at' => null,
+        ]);
+    }
+
+    public function scheduled(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => ArticleStatus::Scheduled,
+            'scheduled_at' => now()->addDays(2),
+            'published_at' => null,
+            'archived_at' => null,
+        ]);
+    }
+
     public function published(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => ArticleStatus::Published,
-            'published_at' => now(),
+            'published_at' => now()->subDays(1),
+            'scheduled_at' => null,
+            'archived_at' => null,
+        ]);
+    }
+
+    public function archived(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => ArticleStatus::Archived,
+            'published_at' => now()->subDays(2),
+            'archived_at' => now(),
+            'scheduled_at' => null,
         ]);
     }
 }

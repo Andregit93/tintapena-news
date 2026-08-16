@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Articles\Tables;
 
 use App\Enums\ArticleStatus;
-use Filament\Actions\BulkActionGroup;
 
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -105,11 +104,6 @@ class ArticlesTable
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-
-                ]),
             ]);
     }
 }

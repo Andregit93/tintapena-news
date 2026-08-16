@@ -6,13 +6,13 @@ use App\Enums\AdvertisementType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+#[Fillable(['name', 'type', 'placement_key', 'media_id', 'content', 'target_url', 'starts_at', 'ends_at', 'is_active', 'sort_order'])]
 class Advertisement extends Model
 {
     /** @use HasFactory<\Database\Factories\AdvertisementFactory> */
     use HasFactory;
-
-    protected $guarded = [];
 
     protected function casts(): array
     {
