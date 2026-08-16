@@ -31,4 +31,9 @@ class Media extends Model
     {
         return $this->hasMany(Advertisement::class);
     }
+
+    public function featuredArticles(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Article::class, 'featured_media_id');
+    }
 }

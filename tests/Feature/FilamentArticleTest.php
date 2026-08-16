@@ -289,3 +289,24 @@ it('article table exposes no bulk delete action', function () {
     Livewire::test(ListArticles::class)
         ->assertTableBulkActionDoesNotExist('delete');
 });
+
+it('existing media can be selected as featured image', function () {
+    actingAs($this->admin);
+    $media = App\Models\Media::factory()->create(['uploaded_by' => $this->admin->id]);
+    $category = App\Models\Category::factory()->create(['is_active' => true]);
+
+    Livewire::test(\App\Filament\Resources\Articles\Pages\CreateArticle::class)
+        ->fillForm([
+            'title' => 'Article with Image',
+            'slug' => 'article-with-image',
+            'category_id' => $category->id,
+            'featured_media_id' => $media->id,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $this->assertDatabaseHas(\App\Models\Article::class, [
+        'slug' => 'article-with-image',
+        'featured_media_id' => $media->id,
+    ]);
+});

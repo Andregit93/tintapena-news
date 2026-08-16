@@ -62,6 +62,18 @@ class ArticleForm
                     ])->columnSpan(['lg' => 2]),
 
                     Grid::make(1)->schema([
+                        Section::make('Gambar Utama')->schema([
+                            Select::make('featured_media_id')
+                                ->label('Pilih Gambar')
+                                ->relationship(
+                                    name: 'featuredMedia', 
+                                    titleAttribute: 'original_filename'
+                                )
+                                ->getOptionLabelFromRecordUsing(fn ($record) => $record->original_filename ?: $record->filename)
+                                ->searchable(['original_filename', 'filename'])
+                                ->preload(),
+                        ]),
+
                         Section::make('Klasifikasi')->schema([
                             Select::make('category_id')
                                 ->label('Kategori')
