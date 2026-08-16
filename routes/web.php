@@ -1,26 +1,22 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\LatestNewsController;
+use App\Http\Controllers\PopularNewsController;
+use App\Http\Controllers\RegionController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-use App\Http\Controllers\ArticleController;
 Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
-
-use App\Http\Controllers\LatestNewsController;
 Route::get('/terbaru', [LatestNewsController::class, 'index'])->name('articles.latest');
-
-use App\Http\Controllers\PopularNewsController;
 Route::get('/terpopuler', [PopularNewsController::class, 'index'])->name('articles.popular');
-
-use App\Http\Controllers\CategoryController;
 Route::get('/kategori/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
-
-use App\Http\Controllers\RegionController;
 Route::get('/wilayah/{region:slug}', [RegionController::class, 'show'])->name('regions.show');
-
-use App\Http\Controllers\TagController;
 Route::get('/topik/{tag:slug}', [TagController::class, 'show'])->name('tags.show');
-
+Route::get('/cari', [SearchController::class, 'index'])->name('search');

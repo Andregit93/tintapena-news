@@ -279,34 +279,37 @@ it('created_at date filter works correctly', function () {
     actingAs($this->admin);
     
     $oldArticle = Article::factory()->create([
-        'created_at' => now()->subDays(10)
+        'status' => ArticleStatus::Published,
+        'created_at' => \Carbon\Carbon::create(2026, 8, 1, 12, 0, 0, 'UTC')
     ]);
     
     $midArticle = Article::factory()->create([
-        'created_at' => now()->subDays(5)
+        'status' => ArticleStatus::Draft,
+        'created_at' => \Carbon\Carbon::create(2026, 8, 10, 12, 0, 0, 'UTC')
     ]);
     
     $newArticle = Article::factory()->create([
-        'created_at' => now()
+        'status' => ArticleStatus::Published,
+        'created_at' => \Carbon\Carbon::create(2026, 8, 20, 12, 0, 0, 'UTC')
     ]);
     
     // Test from-date filter
     Livewire::test(ListArticles::class)
-        ->filterTable('created_at', ['created_from' => now()->subDays(7)->format('Y-m-d')])
+        ->filterTable('created_at', ['created_from' => '2026-08-05'])
         ->assertCanSeeTableRecords([$midArticle, $newArticle])
         ->assertCanNotSeeTableRecords([$oldArticle]);
         
     // Test until-date filter
     Livewire::test(ListArticles::class)
-        ->filterTable('created_at', ['created_until' => now()->subDays(3)->format('Y-m-d')])
+        ->filterTable('created_at', ['created_until' => '2026-08-15'])
         ->assertCanSeeTableRecords([$oldArticle, $midArticle])
         ->assertCanNotSeeTableRecords([$newArticle]);
         
     // Test inclusive date range
     Livewire::test(ListArticles::class)
         ->filterTable('created_at', [
-            'created_from' => now()->subDays(6)->format('Y-m-d'),
-            'created_until' => now()->subDays(4)->format('Y-m-d'),
+            'created_from' => '2026-08-09',
+            'created_until' => '2026-08-11',
         ])
         ->assertCanSeeTableRecords([$midArticle])
         ->assertCanNotSeeTableRecords([$oldArticle, $newArticle]);
@@ -314,17 +317,17 @@ it('created_at date filter works correctly', function () {
     // Test outside range excluded
     Livewire::test(ListArticles::class)
         ->filterTable('created_at', [
-            'created_from' => now()->addDays(1)->format('Y-m-d'),
-            'created_until' => now()->addDays(5)->format('Y-m-d'),
+            'created_from' => '2026-09-01',
+            'created_until' => '2026-09-05',
         ])
         ->assertCanNotSeeTableRecords([$oldArticle, $midArticle, $newArticle]);
         
     // Test works with existing status filter
     Livewire::test(ListArticles::class)
-        ->filterTable('status', $midArticle->status->value)
+        ->filterTable('status', ArticleStatus::Draft->value)
         ->filterTable('created_at', [
-            'created_from' => now()->subDays(6)->format('Y-m-d'),
-            'created_until' => now()->subDays(4)->format('Y-m-d'),
+            'created_from' => '2026-08-09',
+            'created_until' => '2026-08-11',
         ])
         ->assertCanSeeTableRecords([$midArticle])
         ->assertCanNotSeeTableRecords([$oldArticle, $newArticle]);
