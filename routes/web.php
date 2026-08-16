@@ -18,3 +18,6 @@ Route::get('/terpopuler', [PopularNewsController::class, 'index'])->name('articl
 use App\Http\Controllers\CategoryController;
 Route::get('/kategori/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
+use App\Http\Controllers\RegionController;
+Route::get('/wilayah/{region:slug}', [RegionController::class, 'show'])->name('regions.show');
+
