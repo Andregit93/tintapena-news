@@ -15,3 +15,6 @@ Route::get('/terbaru', [LatestNewsController::class, 'index'])->name('articles.l
 use App\Http\Controllers\PopularNewsController;
 Route::get('/terpopuler', [PopularNewsController::class, 'index'])->name('articles.popular');
 
+use App\Http\Controllers\CategoryController;
+Route::get('/kategori/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+
