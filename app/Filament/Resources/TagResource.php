@@ -37,9 +37,13 @@ class TagResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, $old, $set) {
+                    ->afterStateUpdated(function ($state, $old, $set, $get) {
                         if (($state ?? '') !== ($old ?? '')) {
-                            $set('slug', Str::slug($state));
+                            $slug = $get('slug');
+                            $oldSlug = \Illuminate\Support\Str::slug($old ?? '');
+                            if (empty($slug) || $slug === $oldSlug) {
+                                $set('slug', \Illuminate\Support\Str::slug($state ?? ''));
+                            }
                         }
                     }),
                 Forms\Components\TextInput::make('slug')

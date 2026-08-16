@@ -106,6 +106,20 @@ it('category can be edited and deactivated without deleting related articles', f
 });
 
 
+it('category slug gets generated from name when empty, follows name change, and preserves manual edits', function () {
+    $this->actingAs($this->admin);
+
+    Livewire::test(CategoryResource\Pages\ManageCategories::class)
+        ->mountAction('create')
+        ->setActionData(['name' => 'Berita Ekonomi'])
+        ->assertActionDataSet(['slug' => 'berita-ekonomi']) // 1. empty slug gets generated
+        ->setActionData(['name' => 'Ekonomi Babel'])
+        ->assertActionDataSet(['slug' => 'ekonomi-babel'])  // 2. auto-generated slug follows name change
+        ->setActionData(['slug' => 'ekonomi-khusus'])
+        ->setActionData(['name' => 'Ekonomi Baru'])
+        ->assertActionDataSet(['slug' => 'ekonomi-khusus']); // 3. manually edited slug survives
+});
+
 // REGION
 it('guest cannot access region admin', function () {
     get(RegionResource::getUrl('index'))->assertRedirectContains('/admin/login');
@@ -170,6 +184,20 @@ it('region can be edited and existing article relationship survives', function (
         'id' => $article->id,
         'region_id' => $region->id,
     ]);
+});
+
+it('region slug gets generated from name when empty, follows name change, and preserves manual edits', function () {
+    $this->actingAs($this->admin);
+
+    Livewire::test(RegionResource\Pages\ManageRegions::class)
+        ->mountAction('create')
+        ->setActionData(['name' => 'Bangka Belitung'])
+        ->assertActionDataSet(['slug' => 'bangka-belitung'])
+        ->setActionData(['name' => 'Bangka Selatan'])
+        ->assertActionDataSet(['slug' => 'bangka-selatan'])
+        ->setActionData(['slug' => 'basel'])
+        ->setActionData(['name' => 'Basel Baru'])
+        ->assertActionDataSet(['slug' => 'basel']);
 });
 
 // TAG
@@ -245,4 +273,18 @@ it('tag attached to an article cannot be deleted', function () {
         // The action is cancelled inside before(), so it shouldn't actually delete it.
 
     $this->assertDatabaseHas(Tag::class, ['id' => $tag->id]);
+});
+
+it('tag slug gets generated from name when empty, follows name change, and preserves manual edits', function () {
+    $this->actingAs($this->admin);
+
+    Livewire::test(TagResource\Pages\ManageTags::class)
+        ->mountAction('create')
+        ->setActionData(['name' => 'Trending Topic'])
+        ->assertActionDataSet(['slug' => 'trending-topic'])
+        ->setActionData(['name' => 'Viral Hari Ini'])
+        ->assertActionDataSet(['slug' => 'viral-hari-ini'])
+        ->setActionData(['slug' => 'viral-banget'])
+        ->setActionData(['name' => 'Sangat Viral'])
+        ->assertActionDataSet(['slug' => 'viral-banget']);
 });
