@@ -274,3 +274,18 @@ it('status, category, region filters work', function () {
         ->assertCanSeeTableRecords([$article1])
         ->assertCanNotSeeTableRecords([$article2]);
 });
+
+it('article edit page has no delete action', function () {
+    actingAs($this->admin);
+    $article = Article::factory()->create();
+
+    Livewire::test(EditArticle::class, ['record' => $article->id])
+        ->assertActionDoesNotExist('delete');
+});
+
+it('article table exposes no bulk delete action', function () {
+    actingAs($this->admin);
+
+    Livewire::test(ListArticles::class)
+        ->assertTableBulkActionDoesNotExist('delete');
+});
