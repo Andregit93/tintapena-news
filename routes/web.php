@@ -21,3 +21,6 @@ Route::get('/kategori/{category:slug}', [CategoryController::class, 'show'])->na
 use App\Http\Controllers\RegionController;
 Route::get('/wilayah/{region:slug}', [RegionController::class, 'show'])->name('regions.show');
 
+use App\Http\Controllers\TagController;
+Route::get('/topik/{tag:slug}', [TagController::class, 'show'])->name('tags.show');
+
