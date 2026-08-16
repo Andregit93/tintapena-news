@@ -112,7 +112,7 @@
         <!-- Social Share -->
         <div class="mb-12 border-t border-b border-[#E1E4E8] py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="text-sm font-bold text-[#17191D]">Bagikan Artikel:</div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                 <a href="https://api.whatsapp.com/send?text={{ rawurlencode($article->title . ' ' . $canonicalUrl) }}" 
                    target="_blank" rel="noopener noreferrer"
                    class="px-4 py-2 bg-[#25D366] text-white rounded font-medium text-sm hover:bg-[#20bd5a] transition">
@@ -129,8 +129,10 @@
                     X
                 </a>
                 <button 
-                    x-data="{ copied: false, url: '{{ $canonicalUrl }}' }"
+                    data-copy-url="{{ $canonicalUrl }}"
+                    x-data="{ copied: false }"
                     @click="
+                        const url = $el.dataset.copyUrl;
                         if (navigator.clipboard && window.isSecureContext) {
                             navigator.clipboard.writeText(url).then(() => {
                                 copied = true;

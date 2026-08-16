@@ -381,7 +381,7 @@ it('remains 200 when no related articles exist', function () {
 // PUBLIC-003: SOCIAL SHARE TESTS
 // ============================================================================
 
-it('renders social share controls with correctly encoded canonical URL', function () {
+it('renders social share controls with wrapping behavior and correctly encoded canonical URL', function () {
     $article = Article::factory()->published()->create([
         'title' => 'Test Article "Share" & Co'
     ]);
@@ -393,6 +393,9 @@ it('renders social share controls with correctly encoded canonical URL', functio
 
     $response = $this->get(route('articles.show', $article));
     $response->assertStatus(200);
+    
+    // Wrapper wrapping behavior
+    $response->assertSee('flex flex-wrap items-center gap-2 sm:gap-3', false);
     
     // WhatsApp
     $response->assertSee('WhatsApp');
@@ -408,5 +411,6 @@ it('renders social share controls with correctly encoded canonical URL', functio
     
     // Copy Link (Salin Tautan)
     $response->assertSee('Salin Tautan');
-    $response->assertSee("x-data=\"{ copied: false, url: '{$canonicalUrl}' }\"", false);
+    $response->assertSee("data-copy-url=\"{$canonicalUrl}\"", false);
+    $response->assertDontSee("x-data=\"{ copied: false, url: '{$canonicalUrl}' }\"", false);
 });
