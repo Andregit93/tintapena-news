@@ -11,7 +11,7 @@ class PublishArticle
 {
     public function execute(Article $article, ?CarbonInterface $publishedAt = null): Article
     {
-        if (empty($article->title) || empty($article->slug) || empty($article->content) || empty($article->category_id)) {
+        if (empty($article->title) || empty($article->slug) || blank(trim(strip_tags($article->content ?? ''))) || empty($article->category_id)) {
             throw new InvalidArgumentException('Article is missing required fields (title, slug, content, category) to be published.');
         }
 

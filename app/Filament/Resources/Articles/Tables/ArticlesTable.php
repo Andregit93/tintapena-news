@@ -85,11 +85,21 @@ class ArticlesTable
                         return $query
                             ->when(
                                 $data['created_from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                function (Builder $query, $date): Builder {
+                                    $fromUtc = \Carbon\Carbon::createFromFormat('Y-m-d', $date, 'Asia/Jakarta')
+                                        ->startOfDay()
+                                        ->utc();
+                                    return $query->where('created_at', '>=', $fromUtc);
+                                }
                             )
                             ->when(
                                 $data['created_until'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                function (Builder $query, $date): Builder {
+                                    $untilUtc = \Carbon\Carbon::createFromFormat('Y-m-d', $date, 'Asia/Jakarta')
+                                        ->endOfDay()
+                                        ->utc();
+                                    return $query->where('created_at', '<=', $untilUtc);
+                                }
                             );
                     }),
             ])

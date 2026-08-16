@@ -139,6 +139,32 @@ it('invalid Draft cannot publish but fails gracefully in UI', function () {
     expect($article->status)->toBe(ArticleStatus::Draft);
 });
 
+it('real incomplete Draft cannot publish and fails gracefully in UI', function () {
+    $this->actingAs($this->admin);
+    // Real incomplete draft with null content
+    $article = Article::factory()->create([
+        'title' => 'Valid Title',
+        'slug' => 'valid-title',
+        'content' => null, 
+        'category_id' => $this->category->id,
+        'status' => ArticleStatus::Draft,
+        'author_id' => $this->admin->id
+    ]);
+
+    // Do NOT mock PublishArticle here! We want the real domain logic to throw the exception.
+    Livewire::test(EditArticle::class, ['record' => $article->id])
+        ->mountAction('publish')
+        ->callMountedAction()
+        ->assertNotified(); // Expect danger notification
+
+    // Status and timestamps remain unchanged
+    $article->refresh();
+    expect($article->status)->toBe(ArticleStatus::Draft);
+    expect($article->published_at)->toBeNull();
+    expect($article->scheduled_at)->toBeNull();
+    expect($article->archived_at)->toBeNull();
+});
+
 it('Archived cannot be published', function () {
     $this->actingAs($this->admin);
     $article = Article::factory()->create([
@@ -312,6 +338,37 @@ it('incomplete Draft can still be saved but scheduling fails gracefully', functi
     expect($article->status)->toBe(ArticleStatus::Draft);
 });
 
+it('real incomplete Draft cannot schedule and fails gracefully in UI', function () {
+    $this->actingAs($this->admin);
+    // Real incomplete draft with null content
+    $article = Article::factory()->create([
+        'title' => 'Valid Title',
+        'slug' => 'valid-title',
+        'content' => null, 
+        'category_id' => $this->category->id,
+        'status' => ArticleStatus::Draft,
+        'author_id' => $this->admin->id
+    ]);
+
+    $futureDateUtc = now()->addDays(2)->startOfMinute();
+    $futureDateJkt = $futureDateUtc->copy()->timezone('Asia/Jakarta')->format('Y-m-d H:i:s');
+
+    // Do NOT mock ScheduleArticle!
+    Livewire::test(EditArticle::class, ['record' => $article->id])
+        ->mountAction('schedule')
+        ->setActionData([
+            'scheduled_at' => $futureDateJkt
+        ])
+        ->callMountedAction()
+        ->assertNotified(); // Expect danger notification
+        
+    $article->refresh();
+    expect($article->status)->toBe(ArticleStatus::Draft);
+    expect($article->published_at)->toBeNull();
+    expect($article->scheduled_at)->toBeNull();
+    expect($article->archived_at)->toBeNull();
+});
+
 it('past datetime rejected for scheduling', function () {
     $this->actingAs($this->admin);
     $article = Article::factory()->create([
@@ -403,6 +460,39 @@ it('scheduled publish command remains idempotent when run twice', function () {
     
     $article->refresh();
     expect($article->status)->toBe(ArticleStatus::Published);
+});
+
+it('scheduled command returns failure if one article fails but others succeed', function () {
+    $articleFail = Article::factory()->create([
+        'status' => ArticleStatus::Scheduled, 
+        'scheduled_at' => now()->subMinutes(2), 
+        'category_id' => $this->category->id, 
+        'author_id' => $this->admin->id,
+        'content' => null // This will cause PublishArticle domain action to fail
+    ]);
+    
+    $articleSuccess = Article::factory()->create([
+        'status' => ArticleStatus::Scheduled, 
+        'scheduled_at' => now()->subMinute(), 
+        'category_id' => $this->category->id, 
+        'author_id' => $this->admin->id,
+        'content' => 'Valid content' // This will succeed
+    ]);
+
+    $exitCode = Artisan::call('articles:publish-scheduled');
+    
+    // Command returns Command::FAILURE (1)
+    expect($exitCode)->toBe(\Illuminate\Console\Command::FAILURE);
+    
+    // The failed article remains scheduled
+    $articleFail->refresh();
+    expect($articleFail->status)->toBe(ArticleStatus::Scheduled);
+    expect($articleFail->published_at)->toBeNull();
+    
+    // The successful article gets published
+    $articleSuccess->refresh();
+    expect($articleSuccess->status)->toBe(ArticleStatus::Published);
+    expect($articleSuccess->published_at)->not->toBeNull();
 });
 
 // ==========================================

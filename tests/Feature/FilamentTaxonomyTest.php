@@ -128,6 +128,34 @@ it('category slug gets generated from name when empty, follows name change, and 
         ->assertActionDataSet(['slug' => 'ekonomi-khusus']); // 3. manually edited slug survives
 });
 
+// CATEGORY
+it('validates category slug correctly', function ($slug, $isValid) {
+    actingAs($this->admin);
+
+    $component = Livewire::test(CategoryResource\Pages\ManageCategories::class)
+        ->callAction('create', data: [
+            'name' => 'Test Category',
+            'slug' => $slug,
+            'is_active' => true,
+        ]);
+
+    if ($isValid) {
+        $component->assertHasNoActionErrors(['slug']);
+    } else {
+        $component->assertHasActionErrors(['slug' => 'regex']);
+    }
+})->with([
+    ['foo/bar', false],
+    ['../admin', false],
+    ['hello world', false],
+    ['foo?bar', false],
+    ['foo#bar', false],
+    ['UPPERCASE', false],
+    ['politik', true],
+    ['harga-timah-2026', true],
+    ['bangka-barat', true],
+]);
+
 // REGION
 it('guest cannot access region admin', function () {
     get(RegionResource::getUrl('index'))->assertRedirectContains('/admin/login');
@@ -207,6 +235,33 @@ it('region slug gets generated from name when empty, follows name change, and pr
         ->setActionData(['name' => 'Basel Baru'])
         ->assertActionDataSet(['slug' => 'basel']);
 });
+
+it('validates region slug correctly', function ($slug, $isValid) {
+    actingAs($this->admin);
+
+    $component = Livewire::test(RegionResource\Pages\ManageRegions::class)
+        ->callAction('create', data: [
+            'name' => 'Test Region',
+            'slug' => $slug,
+            'is_active' => true,
+        ]);
+
+    if ($isValid) {
+        $component->assertHasNoActionErrors(['slug']);
+    } else {
+        $component->assertHasActionErrors(['slug' => 'regex']);
+    }
+})->with([
+    ['foo/bar', false],
+    ['../admin', false],
+    ['hello world', false],
+    ['foo?bar', false],
+    ['foo#bar', false],
+    ['UPPERCASE', false],
+    ['politik', true],
+    ['harga-timah-2026', true],
+    ['bangka-barat', true],
+]);
 
 // TAG
 it('guest cannot access tag admin', function () {
@@ -296,3 +351,29 @@ it('tag slug gets generated from name when empty, follows name change, and prese
         ->setActionData(['name' => 'Sangat Viral'])
         ->assertActionDataSet(['slug' => 'viral-banget']);
 });
+
+it('validates tag slug correctly', function ($slug, $isValid) {
+    actingAs($this->admin);
+
+    $component = Livewire::test(TagResource\Pages\ManageTags::class)
+        ->callAction('create', data: [
+            'name' => 'Test Tag',
+            'slug' => $slug,
+        ]);
+
+    if ($isValid) {
+        $component->assertHasNoActionErrors(['slug']);
+    } else {
+        $component->assertHasActionErrors(['slug' => 'regex']);
+    }
+})->with([
+    ['foo/bar', false],
+    ['../admin', false],
+    ['hello world', false],
+    ['foo?bar', false],
+    ['foo#bar', false],
+    ['UPPERCASE', false],
+    ['politik', true],
+    ['harga-timah-2026', true],
+    ['bangka-barat', true],
+]);

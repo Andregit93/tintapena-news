@@ -330,6 +330,61 @@ it('created_at date filter works correctly', function () {
         ->assertCanNotSeeTableRecords([$oldArticle, $newArticle]);
 });
 
+it('created_at date filter respects Asia/Jakarta boundaries', function () {
+    actingAs($this->admin);
+
+    // August 15 2026, 20:00 UTC is August 16 2026, 03:00 WIB
+    $utcInstant = \Carbon\Carbon::create(2026, 8, 15, 20, 0, 0, 'UTC');
+    $articleInWibDay = Article::factory()->create([
+        'created_at' => $utcInstant
+    ]);
+
+    // August 16 2026, 20:00 UTC is August 17 2026, 03:00 WIB
+    $utcInstantNextDay = \Carbon\Carbon::create(2026, 8, 16, 20, 0, 0, 'UTC');
+    $articleInNextWibDay = Article::factory()->create([
+        'created_at' => $utcInstantNextDay
+    ]);
+
+    // Filter for August 16, 2026 (WIB)
+    // Should include $articleInWibDay but NOT $articleInNextWibDay
+    Livewire::test(ListArticles::class)
+        ->filterTable('created_at', [
+            'created_from' => '2026-08-16',
+            'created_until' => '2026-08-16',
+        ])
+        ->assertCanSeeTableRecords([$articleInWibDay])
+        ->assertCanNotSeeTableRecords([$articleInNextWibDay]);
+});
+
+it('validates article slug correctly', function ($slug, $isValid) {
+    actingAs($this->admin);
+    $category = Category::factory()->create(['is_active' => true]);
+
+    $component = Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title' => 'Test Article',
+            'slug' => $slug,
+            'category_id' => $category->id,
+        ])
+        ->call('create');
+
+    if ($isValid) {
+        $component->assertHasNoFormErrors(['slug']);
+    } else {
+        $component->assertHasFormErrors(['slug' => 'regex']);
+    }
+})->with([
+    ['foo/bar', false],
+    ['../admin', false],
+    ['hello world', false],
+    ['foo?bar', false],
+    ['foo#bar', false],
+    ['UPPERCASE', false],
+    ['politik', true],
+    ['harga-timah-2026', true],
+    ['bangka-barat', true],
+]);
+
 it('article edit page has no delete action', function () {
     actingAs($this->admin);
     $article = Article::factory()->create();
