@@ -13,6 +13,14 @@ class ArticleController extends Controller
             ->with(['author', 'category', 'region', 'featuredMedia', 'tags'])
             ->firstOrFail();
 
-        return view('articles.show', compact('article'));
+        $relatedArticles = Article::published()
+            ->where('category_id', $article->category_id)
+            ->where('id', '!=', $article->id)
+            ->orderByDesc('published_at')
+            ->with(['category', 'region', 'featuredMedia'])
+            ->limit(4)
+            ->get();
+
+        return view('articles.show', compact('article', 'relatedArticles'));
     }
 }

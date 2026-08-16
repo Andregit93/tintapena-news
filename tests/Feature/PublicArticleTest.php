@@ -104,9 +104,6 @@ it('renders article details correctly', function () {
         ->assertSee('Credit Image')
         ->assertSee('Article body content')
         ->assertSee('Test Tag')
-        ->assertDontSee('WhatsApp')
-        ->assertDontSee('Facebook')
-        ->assertDontSee('Salin Tautan')
         ->assertDontSee('IKLAN 728 x 90');
 });
 
@@ -291,3 +288,125 @@ it('displays published_at and updated_at in Asia/Jakarta timezone', function () 
     Carbon::setTestNow(); // reset
 });
 
+// ============================================================================
+// PUBLIC-002: RELATED NEWS TESTS
+// ============================================================================
+
+it('shows related article from same category and excludes self', function () {
+    $category = Category::factory()->create();
+    $article = Article::factory()->published()->create(['category_id' => $category->id]);
+    $related = Article::factory()->published()->create(['category_id' => $category->id]);
+
+    $response = $this->get(route('articles.show', $article));
+    
+    $response->assertStatus(200);
+    $response->assertSee('BERITA TERKAIT');
+    $response->assertSee($related->title);
+    
+    $response->assertViewHas('relatedArticles', function ($relatedArticles) use ($article) {
+        return !$relatedArticles->contains('id', $article->id);
+    });
+});
+
+it('does not show Draft, Scheduled, Archived, or future Published as related', function () {
+    $category = Category::factory()->create();
+    $article = Article::factory()->published()->create(['category_id' => $category->id]);
+    
+    $draft = Article::factory()->draft()->create(['category_id' => $category->id, 'title' => 'Draft Title']);
+    $scheduled = Article::factory()->scheduled()->create(['category_id' => $category->id, 'title' => 'Scheduled Title']);
+    $archived = Article::factory()->archived()->create(['category_id' => $category->id, 'title' => 'Archived Title']);
+    $future = Article::factory()->published()->create(['category_id' => $category->id, 'published_at' => now()->addDay(), 'title' => 'Future Title']);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+    
+    $response->assertDontSee('Draft Title');
+    $response->assertDontSee('Scheduled Title');
+    $response->assertDontSee('Archived Title');
+    $response->assertDontSee('Future Title');
+});
+
+it('does not show article from another category as related', function () {
+    $category1 = Category::factory()->create();
+    $category2 = Category::factory()->create();
+    
+    $article = Article::factory()->published()->create(['category_id' => $category1->id]);
+    $other = Article::factory()->published()->create(['category_id' => $category2->id, 'title' => 'Other Category Title']);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertDontSee('Other Category Title');
+});
+
+it('orders related articles newest first and limits to 4', function () {
+    $category = Category::factory()->create();
+    $article = Article::factory()->published()->create(['category_id' => $category->id]);
+    
+    // Create 5 related articles with different dates
+    $a1 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 1', 'published_at' => now()->subDays(5)]);
+    $a2 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 2', 'published_at' => now()->subDays(4)]);
+    $a3 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 3', 'published_at' => now()->subDays(3)]);
+    $a4 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 4', 'published_at' => now()->subDays(2)]);
+    $a5 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 5', 'published_at' => now()->subDays(1)]);
+
+    $response = $this->get(route('articles.show', $article));
+    
+    // a5 is newest, then a4, a3, a2. a1 should be excluded by limit(4).
+    $response->assertSee('Related 5');
+    $response->assertSee('Related 4');
+    $response->assertSee('Related 3');
+    $response->assertSee('Related 2');
+    $response->assertDontSee('Related 1');
+    
+    // Check order (string position)
+    $pos5 = strpos($response->getContent(), 'Related 5');
+    $pos4 = strpos($response->getContent(), 'Related 4');
+    $pos3 = strpos($response->getContent(), 'Related 3');
+    $pos2 = strpos($response->getContent(), 'Related 2');
+    
+    expect($pos5 < $pos4)->toBeTrue();
+    expect($pos4 < $pos3)->toBeTrue();
+    expect($pos3 < $pos2)->toBeTrue();
+});
+
+it('remains 200 when no related articles exist', function () {
+    $category = Category::factory()->create();
+    $article = Article::factory()->published()->create(['category_id' => $category->id]);
+    
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+    $response->assertDontSee('BERITA TERKAIT');
+});
+
+// ============================================================================
+// PUBLIC-003: SOCIAL SHARE TESTS
+// ============================================================================
+
+it('renders social share controls with correctly encoded canonical URL', function () {
+    $article = Article::factory()->published()->create([
+        'title' => 'Test Article "Share" & Co'
+    ]);
+    
+    $canonicalUrl = route('articles.show', $article);
+    $encodedUrl = urlencode($canonicalUrl);
+    $encodedTitleAndUrl = rawurlencode($article->title . ' ' . $canonicalUrl);
+    $encodedTitle = rawurlencode($article->title);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+    
+    // WhatsApp
+    $response->assertSee('WhatsApp');
+    $response->assertSee('https://api.whatsapp.com/send?text=' . $encodedTitleAndUrl, false);
+    
+    // Facebook
+    $response->assertSee('Facebook');
+    $response->assertSee('https://www.facebook.com/sharer/sharer.php?u=' . $encodedUrl, false);
+    
+    // X
+    $response->assertSee('X');
+    $response->assertSee('https://twitter.com/intent/tweet?text=' . $encodedTitle . '&url=' . $encodedUrl, false);
+    
+    // Copy Link (Salin Tautan)
+    $response->assertSee('Salin Tautan');
+    $response->assertSee("x-data=\"{ copied: false, url: '{$canonicalUrl}' }\"", false);
+});
