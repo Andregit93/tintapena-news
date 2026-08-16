@@ -24,7 +24,8 @@ class PopularNewsController extends Controller
         $articles = Article::published()
             ->whereHas('viewStats', function ($query) use ($from, $now) {
                 $query->where('period_start', '>=', $from)
-                      ->where('period_start', '<=', $now);
+                      ->where('period_start', '<=', $now)
+                      ->where('views_count', '>', 0);
             })
             ->withSum(['viewStats as period_views' => function ($query) use ($from, $now) {
                 $query->where('period_start', '>=', $from)

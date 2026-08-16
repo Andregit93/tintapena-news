@@ -11,12 +11,10 @@ uses(RefreshDatabase::class);
 function createStat(Article $article, Carbon $time, int $views)
 {
     $stat = new ArticleViewStat();
-    // Bypass mass-assignment for tests since it's fully guarded
-    $stat->forceFill([
-        'article_id' => $article->id,
-        'period_start' => $time,
-        'views_count' => $views,
-    ])->save();
+    $stat->article_id = $article->id;
+    $stat->period_start = $time;
+    $stat->views_count = $views;
+    $stat->save();
     return $stat;
 }
 
@@ -223,3 +221,14 @@ it('X,Y. article link uses articles.show and canonical URL is route without quer
     $canonicalUrl = route('articles.popular');
     $response->assertSee('rel="canonical" href="' . $canonicalUrl . '"', false);
 });
+
+it('Z. article with only zero-view period stat does NOT become popular', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Published, 'published_at' => now()->subDay(), 'title' => 'Zero View Article']);
+    createStat($article, now()->subHours(2), 0);
+
+    $response = $this->get(route('articles.popular'));
+    
+    $response->assertDontSee('Zero View Article');
+    $response->assertSee('Belum ada berita terpopuler untuk periode ini.');
+});
+
