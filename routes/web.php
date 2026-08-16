@@ -12,3 +12,6 @@ Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('
 use App\Http\Controllers\LatestNewsController;
 Route::get('/terbaru', [LatestNewsController::class, 'index'])->name('articles.latest');
 
+use App\Http\Controllers\PopularNewsController;
+Route::get('/terpopuler', [PopularNewsController::class, 'index'])->name('articles.popular');
+
