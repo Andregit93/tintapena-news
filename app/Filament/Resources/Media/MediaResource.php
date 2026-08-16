@@ -69,9 +69,15 @@ class MediaResource extends Resource
                         ->directory('media')
                         ->visibility('public')
                         ->storeFileNamesIn('original_filename')
-                        ->getUploadedFileNameForStorageUsing(
-                            fn (TemporaryUploadedFile $file): string => (string) Str::uuid() . '.' . $file->getClientOriginalExtension(),
-                        )
+                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                            $extension = match ($file->getMimeType()) {
+                                'image/jpeg' => 'jpg',
+                                'image/png' => 'png',
+                                'image/webp' => 'webp',
+                                default => throw new \Exception('Invalid MIME type.'),
+                            };
+                            return (string) Str::uuid() . '.' . $extension;
+                        })
                         ->required()
                         ->hiddenOn('edit'),
 

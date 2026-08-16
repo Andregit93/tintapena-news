@@ -45,10 +45,64 @@ it('jpeg upload succeeds with correct metadata extraction', function () {
     expect($media->disk)->toBe('public');
     expect($media->original_filename)->toBe('photo.jpg');
     expect($media->extension)->toBe('jpg');
+    expect($media->mime_type)->toBe('image/jpeg');
     expect($media->uploaded_by)->toBe($this->admin->id);
+    expect($media->size)->toBeGreaterThan(0);
+    expect($media->width)->toBe(800);
+    expect($media->height)->toBe(600);
+    
+    // File exists on storage
+    Storage::disk('public')->assertExists($media->path);
+    
+    // Stored filename differs from original filename and uses UUID
+    $storedFilename = basename($media->path);
+    expect($storedFilename)->not->toBe('photo.jpg');
+    // UUID regex check
+    expect($storedFilename)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/i');
 });
 
-it('unsupported MIME rejected', function () {
+it('png upload succeeds', function () {
+    actingAs($this->admin);
+
+    $file = UploadedFile::fake()->image('image.png');
+
+    Livewire::test(ManageMedia::class)
+        ->callAction('create', data: ['path' => [$file]])
+        ->assertHasNoActionErrors();
+
+    $media = Media::latest()->first();
+    expect($media->extension)->toBe('png');
+    expect($media->mime_type)->toBe('image/png');
+    Storage::disk('public')->assertExists($media->path);
+});
+
+it('webp upload succeeds', function () {
+    if (!function_exists('imagecreatefromwebp')) {
+        $this->markTestSkipped('WebP not supported in this PHP environment.');
+    }
+
+    actingAs($this->admin);
+
+    // Create a simple fake webp
+    $file = UploadedFile::fake()->create('image.webp', 10, 'image/webp');
+    // Note: UploadedFile::fake()->image() doesn't always support webp easily, so we just mock one
+    // But since Filament might validate dimensions using getimagesize(), let's actually create a tiny valid webp if we can,
+    // or just mock it. We will use a dummy one and skip dimension validation if it fails, or rely on Laravel's faker.
+    // Actually, UploadedFile::fake()->image('image.webp') might work? Let's try.
+    // Wait, let's just use create() but we can't test width/height if it's not a real image. Filament image validation might fail.
+    // We will just let it fail if the environment rejects fake webp, or we can use a known valid base64.
+    // To be safe, we'll try the fake image.
+    $file = UploadedFile::fake()->image('image.webp');
+
+    Livewire::test(ManageMedia::class)
+        ->callAction('create', data: ['path' => [$file]])
+        ->assertHasNoActionErrors();
+
+    $media = Media::latest()->first();
+    expect($media->extension)->toBe('webp');
+});
+
+it('unsupported MIME rejected (svg)', function () {
     actingAs($this->admin);
 
     // SVG not allowed
@@ -59,6 +113,42 @@ it('unsupported MIME rejected', function () {
             'path' => [$file],
         ])
         ->assertHasActionErrors(['path']);
+});
+
+it('non-image rejected', function () {
+    actingAs($this->admin);
+
+    // PDF not allowed
+    $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+
+    Livewire::test(ManageMedia::class)
+        ->callAction('create', data: [
+            'path' => [$file],
+        ])
+        ->assertHasActionErrors(['path']);
+});
+
+it('security regression: client-controlled dangerous filename extension never becomes final extension', function () {
+    actingAs($this->admin);
+
+    // User uploads a valid JPEG image, but uses an unexpected extension (e.g., .JPEG instead of .jpg)
+    // The MIME type will be image/jpeg. Our code must force it to .jpg, ignoring the client extension.
+    $file = UploadedFile::fake()->image('exploit.JPEG');
+
+    Livewire::test(ManageMedia::class)
+        ->callAction('create', data: [
+            'path' => [$file],
+        ])
+        ->assertHasNoActionErrors();
+
+    $media = Media::latest()->first();
+    
+    // The final storage extension MUST be jpg, derived from image/jpeg MIME
+    // It MUST NOT be JPEG (the client extension)
+    expect($media->extension)->toBe('jpg');
+    $storedFilename = basename($media->path);
+    expect($storedFilename)->toEndWith('.jpg');
+    expect($storedFilename)->not->toEndWith('.JPEG');
 });
 
 it('file over 5 MB rejected', function () {

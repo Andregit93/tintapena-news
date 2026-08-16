@@ -310,3 +310,48 @@ it('existing media can be selected as featured image', function () {
         'featured_media_id' => $media->id,
     ]);
 });
+
+it('featured image can be replaced or cleared without altering status or author, and media count remains unchanged', function () {
+    actingAs($this->admin);
+    
+    $media1 = App\Models\Media::factory()->create(['uploaded_by' => $this->admin->id]);
+    $media2 = App\Models\Media::factory()->create(['uploaded_by' => $this->admin->id]);
+    $category = App\Models\Category::factory()->create(['is_active' => true]);
+    
+    $initialMediaCount = App\Models\Media::count();
+
+    $article = App\Models\Article::factory()->create([
+        'status' => ArticleStatus::Draft,
+        'author_id' => $this->admin->id,
+        'category_id' => $category->id,
+        'featured_media_id' => $media1->id,
+    ]);
+
+    // Replace featured image
+    Livewire::test(EditArticle::class, ['record' => $article->id])
+        ->fillForm([
+            'featured_media_id' => $media2->id,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $article->refresh();
+    expect($article->featured_media_id)->toBe($media2->id);
+    expect($article->status)->toBe(ArticleStatus::Draft);
+    expect($article->author_id)->toBe($this->admin->id);
+    expect(App\Models\Media::count())->toBe($initialMediaCount);
+
+    // Clear featured image
+    Livewire::test(EditArticle::class, ['record' => $article->id])
+        ->fillForm([
+            'featured_media_id' => null,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $article->refresh();
+    expect($article->featured_media_id)->toBeNull();
+    expect($article->status)->toBe(ArticleStatus::Draft);
+    expect($article->author_id)->toBe($this->admin->id);
+    expect(App\Models\Media::count())->toBe($initialMediaCount);
+});
