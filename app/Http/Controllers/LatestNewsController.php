@@ -13,6 +13,7 @@ class LatestNewsController extends Controller
     {
         $articles = Article::published()
             ->orderByDesc('published_at')
+            ->orderByDesc('id')
             ->with(['category', 'region', 'featuredMedia'])
             ->paginate(10);
 

@@ -36,7 +36,7 @@ class PopularNewsController extends Controller
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->paginate(10)
-            ->withQueryString();
+            ->appends(['periode' => $period]);
 
         return view('articles.popular', [
             'articles' => $articles,

@@ -53,7 +53,7 @@
         ],
         "test:mysql": [
             "@php artisan config:clear --ansi",
-            "@php artisan test --configuration phpunit.mysql.xml --testsuite=MySQLParity"
+            "@php vendor/bin/pest --configuration=phpunit.mysql.xml --testsuite=MySQLParity"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
