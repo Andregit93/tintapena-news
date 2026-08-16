@@ -29,4 +29,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Article, $this>
+     */
+    public function articles(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Media, $this>
+     */
+    public function media(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Media::class, 'uploaded_by');
+    }
 }
