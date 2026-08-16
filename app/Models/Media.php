@@ -26,4 +26,9 @@ class Media extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    public function advertisements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Advertisement::class);
+    }
 }

@@ -45,4 +45,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(Media::class, 'uploaded_by');
     }
+
+    public function homepageUpdates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(HomepageSlot::class, 'updated_by');
+    }
+
+    public function breakingNewsCreated(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BreakingNews::class, 'created_by');
+    }
+
+    public function pagesCreated(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Page::class, 'created_by');
+    }
+
+    public function pagesUpdated(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Page::class, 'updated_by');
+    }
 }

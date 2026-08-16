@@ -52,6 +52,21 @@ class Article extends Model
         return $this->belongsToMany(Tag::class);
     }
 
+    public function homepageSlots(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(HomepageSlot::class);
+    }
+
+    public function breakingNews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BreakingNews::class);
+    }
+
+    public function viewStats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ArticleViewStat::class);
+    }
+
     /**
      * Scope a query to only include published articles.
      */
