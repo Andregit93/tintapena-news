@@ -1,18 +1,20 @@
 @extends('layouts.public')
 
 @php
+    $seoTitle = blank($article->seo_title) ? $article->title : $article->seo_title;
+    
     $metaDescription = $article->meta_description;
-    if (!$metaDescription && $article->excerpt) {
+    if (blank($metaDescription) && filled($article->excerpt)) {
         $metaDescription = $article->excerpt;
     }
-    if (!$metaDescription) {
+    if (blank($metaDescription)) {
         $stripped = strip_tags($article->content);
         $normalized = preg_replace('/\s+/', ' ', $stripped);
         $metaDescription = \Illuminate\Support\Str::limit(trim($normalized), 160);
     }
 @endphp
 
-@section('title', $article->seo_title ?? $article->title)
+@section('title', $seoTitle)
 @section('meta_description', $metaDescription)
 @section('canonical', route('articles.show', ['article' => $article->slug]))
 
@@ -58,20 +60,13 @@
         <!-- Author & Time -->
         <div class="flex flex-col md:flex-row md:items-center justify-between text-xs text-[#5D6470] mb-8 border-b border-[#E1E4E8] pb-4">
             <div class="mb-4 md:mb-0">
-                <span>Oleh Redaksi TINTAPENA</span>
+                <span>Oleh {{ $article->author->name ?? 'Redaksi TINTAPENA' }}</span>
                 <span class="mx-1">&bull;</span>
                 <span>{{ $article->published_at->locale('id')->isoFormat('D MMMM YYYY, HH:mm') }} WIB</span>
                 @if($article->updated_at && $article->updated_at->gt($article->published_at))
                     <span class="mx-1">&bull;</span>
                     <span>Diperbarui {{ $article->updated_at->locale('id')->isoFormat('HH:mm') }} WIB</span>
                 @endif
-            </div>
-            
-            <div class="flex space-x-2">
-                <span class="px-3 py-1.5 border border-[#E1E4E8] rounded bg-white font-medium text-[#17191D]">WhatsApp</span>
-                <span class="px-3 py-1.5 border border-[#E1E4E8] rounded bg-white font-medium text-[#17191D]">Facebook</span>
-                <span class="px-3 py-1.5 border border-[#E1E4E8] rounded bg-white font-medium text-[#17191D]">X</span>
-                <span class="px-3 py-1.5 border border-[#E1E4E8] rounded bg-white font-medium text-[#17191D]">Salin Tautan</span>
             </div>
         </div>
         

@@ -95,14 +95,19 @@ it('renders article details correctly', function () {
         ->assertStatus(200)
         ->assertSee('Test Article Title')
         ->assertSee('Test Article Subtitle')
-        ->assertSee('Oleh Redaksi TINTAPENA')
+        ->assertSee('Oleh ' . $article->author->name)
+        ->assertDontSee('Oleh Redaksi TINTAPENA')
         ->assertSee('Politik')
         ->assertSee('BANGKA')
         ->assertSee('Alt Image')
         ->assertSee('Caption Image')
         ->assertSee('Credit Image')
         ->assertSee('Article body content')
-        ->assertSee('Test Tag');
+        ->assertSee('Test Tag')
+        ->assertDontSee('WhatsApp')
+        ->assertDontSee('Facebook')
+        ->assertDontSee('Salin Tautan')
+        ->assertDontSee('IKLAN 728 x 90');
 });
 
 it('does not break when region is null', function () {
@@ -142,18 +147,18 @@ it('uses seo_title when present', function () {
         ->assertSee('<title>SEO Title Override</title>', false);
 });
 
-it('uses title fallback when seo_title is null', function () {
+it('uses title fallback when seo_title is null, empty or whitespace', function ($seoTitle) {
     $article = Article::factory()->create([
         'status' => ArticleStatus::Published,
         'published_at' => now()->subDay(),
         'title' => 'Normal Title',
-        'seo_title' => null,
+        'seo_title' => $seoTitle,
     ]);
 
     $this->get(route('articles.show', $article))
         ->assertStatus(200)
         ->assertSee('<title>Normal Title</title>', false);
-});
+})->with([null, '', '   ']);
 
 it('uses meta_description when present', function () {
     $article = Article::factory()->create([
@@ -219,3 +224,25 @@ it('does not increment views_count', function () {
 
     expect($article->refresh()->views_count)->toBe(0);
 });
+
+it('safely HTML-escapes SEO fields', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => now()->subDay(),
+        'title' => 'Title With <script>alert("xss")</script>',
+        'seo_title' => 'SEO <script>alert("xss")</script>',
+        'meta_description' => 'Meta <script>alert("xss")</script>',
+    ]);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+
+    // Verify it doesn't see the unescaped script tag in metadata output
+    $response->assertDontSee('<title>SEO <script>alert("xss")</script></title>', false);
+    $response->assertDontSee('content="Meta <script>alert("xss")</script>"', false);
+    
+    // Verify it sees the escaped version
+    $response->assertSee(e('SEO <script>alert("xss")</script>'), false);
+    $response->assertSee(e('Meta <script>alert("xss")</script>'), false);
+});
+

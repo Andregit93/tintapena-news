@@ -64,7 +64,8 @@ it('jpeg upload succeeds with correct metadata extraction', function () {
 it('png upload succeeds', function () {
     actingAs($this->admin);
 
-    $file = UploadedFile::fake()->image('image.png');
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+    $file = UploadedFile::fake()->createWithContent('image.png', $png);
 
     Livewire::test(ManageMedia::class)
         ->callAction('create', data: ['path' => [$file]])
@@ -83,16 +84,8 @@ it('webp upload succeeds', function () {
 
     actingAs($this->admin);
 
-    // Create a simple fake webp
-    $file = UploadedFile::fake()->create('image.webp', 10, 'image/webp');
-    // Note: UploadedFile::fake()->image() doesn't always support webp easily, so we just mock one
-    // But since Filament might validate dimensions using getimagesize(), let's actually create a tiny valid webp if we can,
-    // or just mock it. We will use a dummy one and skip dimension validation if it fails, or rely on Laravel's faker.
-    // Actually, UploadedFile::fake()->image('image.webp') might work? Let's try.
-    // Wait, let's just use create() but we can't test width/height if it's not a real image. Filament image validation might fail.
-    // We will just let it fail if the environment rejects fake webp, or we can use a known valid base64.
-    // To be safe, we'll try the fake image.
-    $file = UploadedFile::fake()->image('image.webp');
+    $webp = base64_decode('UklGRhIAAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=');
+    $file = UploadedFile::fake()->createWithContent('image.webp', $webp);
 
     Livewire::test(ManageMedia::class)
         ->callAction('create', data: ['path' => [$file]])
