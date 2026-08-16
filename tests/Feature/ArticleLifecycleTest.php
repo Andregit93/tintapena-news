@@ -124,6 +124,51 @@ it('future Scheduled article cannot be manually/early published', function () {
     expect(fn() => $action->execute($article, now()))->toThrow(InvalidArgumentException::class);
 });
 
+it('Draft cannot publish with arbitrary supplied publishedAt', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Draft, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new PublishArticle();
+    expect(fn() => $action->execute($article, now()->addDays(5)))->toThrow(InvalidArgumentException::class);
+});
+
+it('Manual Draft publish uses now()', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Draft, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new PublishArticle();
+    
+    Carbon::setTestNow(Carbon::create(2025, 1, 1, 12, 0, 0));
+    $publishedArticle = $action->execute($article);
+    expect($publishedArticle->published_at->toDateTimeString())->toBe('2025-01-01 12:00:00');
+    Carbon::setTestNow(null);
+});
+
+it('Due Scheduled article rejects publishedAt different from scheduled_at', function () {
+    $scheduledAt = now()->subMinutes(10);
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Scheduled, 
+        'scheduled_at' => $scheduledAt, 
+        'category_id' => $this->category->id, 
+        'author_id' => $this->admin->id
+    ]);
+    
+    $action = new PublishArticle();
+    expect(fn() => $action->execute($article, now()))->toThrow(InvalidArgumentException::class);
+});
+
+it('Due Scheduled article succeeds when publishedAt equals original scheduled_at', function () {
+    $scheduledAt = now()->subMinutes(10)->startOfSecond();
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Scheduled, 
+        'scheduled_at' => $scheduledAt, 
+        'category_id' => $this->category->id, 
+        'author_id' => $this->admin->id
+    ]);
+    
+    $action = new PublishArticle();
+    $publishedArticle = $action->execute($article, $scheduledAt);
+    
+    expect($publishedArticle->status)->toBe(ArticleStatus::Published);
+    expect($publishedArticle->published_at->toDateTimeString())->toBe($scheduledAt->toDateTimeString());
+});
+
 // ==========================================
 // SCHEDULE
 // ==========================================
