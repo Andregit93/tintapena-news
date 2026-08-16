@@ -15,8 +15,8 @@ class ScheduleArticle
             throw new InvalidArgumentException('Article is missing required fields (title, slug, content, category) to be scheduled.');
         }
 
-        if ($article->status === ArticleStatus::Archived) {
-            throw new InvalidArgumentException('Archived articles cannot be scheduled.');
+        if ($article->status !== ArticleStatus::Draft) {
+            throw new InvalidArgumentException('Only Draft articles can be scheduled.');
         }
 
         if ($scheduledAt->isPast()) {

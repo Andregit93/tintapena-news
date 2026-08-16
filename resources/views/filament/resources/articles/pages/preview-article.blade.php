@@ -25,12 +25,13 @@
 
             @if($record->featuredMedia)
                 <div class="mb-6">
-                    <img src="{{ Storage::url($record->featuredMedia->path) }}" alt="{{ $record->featuredMedia->caption ?? $record->title }}" class="w-full max-w-3xl rounded-lg shadow-sm">
-                    @if($record->featuredMedia->caption)
-                        <p class="text-sm text-gray-500 mt-2">{{ $record->featuredMedia->caption }}
-                        @if($record->featuredMedia->credit)
-                            (Photo: {{ $record->featuredMedia->credit }})
-                        @endif
+                    <img src="{{ Storage::url($record->featuredMedia->path) }}" alt="{{ $record->featuredMedia->alt_text ?? $record->title }}" class="w-full max-w-3xl rounded-lg shadow-sm">
+                    @if($record->featuredMedia->caption || $record->featuredMedia->photo_credit)
+                        <p class="text-sm text-gray-500 mt-2">
+                            {{ $record->featuredMedia->caption }}
+                            @if($record->featuredMedia->photo_credit)
+                                (Photo: {{ $record->featuredMedia->photo_credit }})
+                            @endif
                         </p>
                     @endif
                 </div>

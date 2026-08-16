@@ -15,8 +15,22 @@ class PublishArticle
             throw new InvalidArgumentException('Article is missing required fields (title, slug, content, category) to be published.');
         }
 
-        if ($article->status === ArticleStatus::Archived) {
-            throw new InvalidArgumentException('Archived articles cannot be published.');
+        if (!in_array($article->status, [ArticleStatus::Draft, ArticleStatus::Scheduled])) {
+            throw new InvalidArgumentException('Only Draft or Scheduled articles can be published.');
+        }
+
+        if ($article->status === ArticleStatus::Scheduled) {
+            if (!$article->scheduled_at) {
+                throw new InvalidArgumentException('Scheduled article must have a scheduled_at date to be published.');
+            }
+            
+            if (now()->isBefore($article->scheduled_at)) {
+                throw new InvalidArgumentException('Cannot publish a scheduled article before its scheduled time.');
+            }
+
+            if (!$publishedAt) {
+                throw new InvalidArgumentException('Publishing a Scheduled article requires an explicit publishedAt argument (usually original scheduled_at).');
+            }
         }
 
         $article->status = ArticleStatus::Published;

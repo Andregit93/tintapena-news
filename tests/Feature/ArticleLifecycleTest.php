@@ -112,6 +112,18 @@ it('Archived cannot be published', function () {
     expect(fn() => $action->execute($article))->toThrow(InvalidArgumentException::class);
 });
 
+it('Published article cannot be republished', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Published, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new PublishArticle();
+    expect(fn() => $action->execute($article))->toThrow(InvalidArgumentException::class);
+});
+
+it('future Scheduled article cannot be manually/early published', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Scheduled, 'scheduled_at' => now()->addDay(), 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new PublishArticle();
+    expect(fn() => $action->execute($article, now()))->toThrow(InvalidArgumentException::class);
+});
+
 // ==========================================
 // SCHEDULE
 // ==========================================
@@ -163,6 +175,24 @@ it('past datetime rejected for scheduling', function () {
     expect($article->status)->toBe(ArticleStatus::Draft);
 });
 
+it('Published article cannot be scheduled', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Published, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new ScheduleArticle();
+    expect(fn() => $action->execute($article, now()->addDay()))->toThrow(InvalidArgumentException::class);
+});
+
+it('Scheduled article cannot be scheduled again', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Scheduled, 'scheduled_at' => now()->addDay(), 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new ScheduleArticle();
+    expect(fn() => $action->execute($article, now()->addDays(2)))->toThrow(InvalidArgumentException::class);
+});
+
+it('Archived article cannot be scheduled', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Archived, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new ScheduleArticle();
+    expect(fn() => $action->execute($article, now()->addDay()))->toThrow(InvalidArgumentException::class);
+});
+
 // ==========================================
 // SCHEDULER
 // ==========================================
@@ -206,6 +236,15 @@ it('future Scheduled article remains Scheduled', function () {
     expect($article->scheduled_at)->not->toBeNull();
 });
 
+it('scheduled publish command remains idempotent when run twice', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Scheduled, 'scheduled_at' => now()->subMinute(), 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    Artisan::call('articles:publish-scheduled');
+    Artisan::call('articles:publish-scheduled');
+    
+    $article->refresh();
+    expect($article->status)->toBe(ArticleStatus::Published);
+});
+
 // ==========================================
 // ARCHIVE
 // ==========================================
@@ -246,6 +285,18 @@ it('Draft cannot be archived', function () {
     expect(fn() => $action->execute($article))->toThrow(InvalidArgumentException::class);
 });
 
+it('Scheduled article cannot be archived', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Scheduled, 'scheduled_at' => now()->addDay(), 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new ArchiveArticle();
+    expect(fn() => $action->execute($article))->toThrow(InvalidArgumentException::class);
+});
+
+it('Archived article cannot be archived again', function () {
+    $article = Article::factory()->create(['status' => ArticleStatus::Archived, 'category_id' => $this->category->id, 'author_id' => $this->admin->id]);
+    $action = new ArchiveArticle();
+    expect(fn() => $action->execute($article))->toThrow(InvalidArgumentException::class);
+});
+
 // ==========================================
 // FILAMENT ACTION VISIBILITY
 // ==========================================
@@ -280,4 +331,26 @@ it('Archived only sees Preview action', function () {
         ->assertActionHidden('publish')
         ->assertActionHidden('schedule')
         ->assertActionHidden('archive');
+});
+
+it('preview displays alt text/caption/photo_credit correctly', function () {
+    $this->actingAs($this->admin);
+    $media = App\Models\Media::factory()->create([
+        'alt_text' => 'Custom Alt Text View',
+        'caption' => 'Custom Caption View',
+        'photo_credit' => 'Custom Credit View',
+        'mime_type' => 'image/jpeg',
+    ]);
+    
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Draft,
+        'category_id' => $this->category->id,
+        'author_id' => $this->admin->id,
+        'featured_media_id' => $media->id,
+    ]);
+
+    $response = $this->get('/admin/berita/' . $article->id . '/preview');
+    $response->assertSee('Custom Alt Text View');
+    $response->assertSee('Custom Caption View');
+    $response->assertSee('Custom Credit View');
 });
