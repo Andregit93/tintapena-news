@@ -9,6 +9,7 @@ use App\Actions\Articles\ScheduleArticle;
 use App\Actions\Articles\ArchiveArticle;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditArticle extends EditRecord
@@ -35,8 +36,22 @@ class EditArticle extends EditRecord
                 ->modalDescription('Apakah Anda yakin ingin menerbitkan berita ini sekarang?')
                 ->action(function ($record) {
                     $this->save();
-                    app(PublishArticle::class)->execute($record);
-                    $this->refreshFormData(['status', 'published_at', 'scheduled_at', 'archived_at']);
+                    $record->refresh();
+                    
+                    try {
+                        app(PublishArticle::class)->execute($record);
+                        $this->refreshFormData(['status', 'published_at', 'scheduled_at', 'archived_at']);
+                        Notification::make()
+                            ->title('Berita diterbitkan')
+                            ->success()
+                            ->send();
+                    } catch (\InvalidArgumentException $e) {
+                        Notification::make()
+                            ->title('Gagal Menerbitkan')
+                            ->body('Berita belum dapat diterbitkan. Lengkapi isi berita terlebih dahulu.')
+                            ->danger()
+                            ->send();
+                    }
                 }),
 
             Action::make('schedule')
@@ -54,8 +69,22 @@ class EditArticle extends EditRecord
                 ->modalHeading('Jadwalkan Berita')
                 ->action(function ($record, array $data) {
                     $this->save();
-                    app(ScheduleArticle::class)->execute($record, \Carbon\Carbon::parse($data['scheduled_at']));
-                    $this->refreshFormData(['status', 'published_at', 'scheduled_at', 'archived_at']);
+                    $record->refresh();
+                    
+                    try {
+                        app(ScheduleArticle::class)->execute($record, \Carbon\Carbon::parse($data['scheduled_at']));
+                        $this->refreshFormData(['status', 'published_at', 'scheduled_at', 'archived_at']);
+                        Notification::make()
+                            ->title('Berita dijadwalkan')
+                            ->success()
+                            ->send();
+                    } catch (\InvalidArgumentException $e) {
+                        Notification::make()
+                            ->title('Gagal Menjadwalkan')
+                            ->body('Berita belum dapat dijadwalkan. Lengkapi data wajib terlebih dahulu.')
+                            ->danger()
+                            ->send();
+                    }
                 }),
 
             Action::make('archive')

@@ -246,3 +246,48 @@ it('safely HTML-escapes SEO fields', function () {
     $response->assertSee(e('Meta <script>alert("xss")</script>'), false);
 });
 
+it('sanitizes malicious HTML in article content', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => now()->subDay(),
+        'content' => '<p>Safe paragraph</p><strong>Safe bold</strong><script>alert(1)</script><img src=x onerror="alert(1)"><a href="javascript:alert(1)">bad link</a>',
+    ]);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+
+    // Should still contain safe tags
+    $response->assertSee('<p>Safe paragraph</p>', false);
+    $response->assertSee('<strong>Safe bold</strong>', false);
+    
+    // Should NOT contain dangerous content
+    $response->assertDontSee('<script>alert(1)</script>', false);
+    $response->assertDontSee('onerror=', false);
+    $response->assertDontSee('javascript:', false);
+});
+
+it('displays published_at and updated_at in Asia/Jakarta timezone', function () {
+    // Set current time to a specific UTC instant
+    $utcTime = Carbon::create(2026, 8, 16, 3, 0, 0, 'UTC');
+    Carbon::setTestNow($utcTime);
+    
+    // 03:00 UTC = 10:00 WIB
+    
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => $utcTime,
+        'updated_at' => (clone $utcTime)->addHours(2), // 05:00 UTC = 12:00 WIB
+    ]);
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+
+    // Verify it displays WIB 10:00 for published_at
+    $response->assertSee('16 Agustus 2026, 10:00 WIB');
+    
+    // Verify it displays WIB 12:00 for updated_at
+    $response->assertSee('Diperbarui 12:00 WIB');
+    
+    Carbon::setTestNow(); // reset
+});
+

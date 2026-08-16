@@ -27,27 +27,28 @@ class PublishScheduledArticles extends Command
     /**
      * Execute the console command.
      */
-    public function handle(PublishArticle $publishAction): void
+    public function handle(PublishArticle $publishAction): int
     {
-        $dueArticles = Article::where('status', ArticleStatus::Scheduled)
-            ->whereNotNull('scheduled_at')
-            ->where('scheduled_at', '<=', now())
-            ->get();
-
         $publishedCount = 0;
         $failedCount = 0;
 
-        foreach ($dueArticles as $article) {
-            try {
-                // Pass the scheduled_at time to use as the published_at time
-                $publishAction->execute($article, $article->scheduled_at);
-                $publishedCount++;
-            } catch (Throwable $e) {
-                $failedCount++;
-                $this->error("Failed to publish article #{$article->id}: {$e->getMessage()}");
-            }
-        }
+        Article::where('status', ArticleStatus::Scheduled)
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', now())
+            ->chunkById(100, function ($dueArticles) use ($publishAction, &$publishedCount, &$failedCount) {
+                foreach ($dueArticles as $article) {
+                    try {
+                        $publishAction->execute($article, $article->scheduled_at);
+                        $publishedCount++;
+                    } catch (Throwable $e) {
+                        $failedCount++;
+                        $this->error("Failed to publish article #{$article->id}: {$e->getMessage()}");
+                    }
+                }
+            });
 
         $this->info("Scheduled publication complete. Published: {$publishedCount}, Failed: {$failedCount}");
+        
+        return $failedCount > 0 ? Command::FAILURE : Command::SUCCESS;
     }
 }

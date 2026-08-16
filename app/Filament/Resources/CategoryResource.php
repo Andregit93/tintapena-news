@@ -47,6 +47,7 @@ class CategoryResource extends Resource
                     }),
                 Forms\Components\TextInput::make('slug')
                     ->required()
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->maxLength(255)
                     ->unique(Category::class, 'slug', ignoreRecord: true),
                 Forms\Components\Textarea::make('description')

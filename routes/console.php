@@ -7,4 +7,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-\Illuminate\Support\Facades\Schedule::command('articles:publish-scheduled')->everyMinute();
+\Illuminate\Support\Facades\Schedule::command('articles:publish-scheduled')
+    ->everyMinute()
+    ->withoutOverlapping();

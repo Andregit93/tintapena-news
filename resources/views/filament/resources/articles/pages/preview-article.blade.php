@@ -38,7 +38,7 @@
             @endif
 
             <div class="mt-8">
-                {!! $record->content !!}
+                {!! str($record->content)->sanitizeHtml() !!}
             </div>
 
             @if($record->tags->count() > 0)

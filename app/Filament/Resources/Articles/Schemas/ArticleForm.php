@@ -36,6 +36,7 @@ class ArticleForm
                             TextInput::make('slug')
                                 ->label('Slug')
                                 ->required()
+                                ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                                 ->unique(ignoreRecord: true)
                                 ->maxLength(255),
                             TextInput::make('subtitle')

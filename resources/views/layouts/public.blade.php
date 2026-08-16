@@ -28,7 +28,7 @@
         <div class="bg-[#111833] text-white text-xs py-2 hidden md:block">
             <div class="max-w-[1240px] mx-auto px-4 md:px-8 flex justify-between items-center">
                 <div class="flex space-x-6">
-                    <span>{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                    <span>{{ now()->timezone('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
                     <span>&bull;</span>
                     <span>Bangka Belitung</span>
                 </div>

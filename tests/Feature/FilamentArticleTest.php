@@ -275,6 +275,61 @@ it('status, category, region filters work', function () {
         ->assertCanNotSeeTableRecords([$article2]);
 });
 
+it('created_at date filter works correctly', function () {
+    actingAs($this->admin);
+    
+    $oldArticle = Article::factory()->create([
+        'created_at' => now()->subDays(10)
+    ]);
+    
+    $midArticle = Article::factory()->create([
+        'created_at' => now()->subDays(5)
+    ]);
+    
+    $newArticle = Article::factory()->create([
+        'created_at' => now()
+    ]);
+    
+    // Test from-date filter
+    Livewire::test(ListArticles::class)
+        ->filterTable('created_at', ['created_from' => now()->subDays(7)->format('Y-m-d')])
+        ->assertCanSeeTableRecords([$midArticle, $newArticle])
+        ->assertCanNotSeeTableRecords([$oldArticle]);
+        
+    // Test until-date filter
+    Livewire::test(ListArticles::class)
+        ->filterTable('created_at', ['created_until' => now()->subDays(3)->format('Y-m-d')])
+        ->assertCanSeeTableRecords([$oldArticle, $midArticle])
+        ->assertCanNotSeeTableRecords([$newArticle]);
+        
+    // Test inclusive date range
+    Livewire::test(ListArticles::class)
+        ->filterTable('created_at', [
+            'created_from' => now()->subDays(6)->format('Y-m-d'),
+            'created_until' => now()->subDays(4)->format('Y-m-d'),
+        ])
+        ->assertCanSeeTableRecords([$midArticle])
+        ->assertCanNotSeeTableRecords([$oldArticle, $newArticle]);
+        
+    // Test outside range excluded
+    Livewire::test(ListArticles::class)
+        ->filterTable('created_at', [
+            'created_from' => now()->addDays(1)->format('Y-m-d'),
+            'created_until' => now()->addDays(5)->format('Y-m-d'),
+        ])
+        ->assertCanNotSeeTableRecords([$oldArticle, $midArticle, $newArticle]);
+        
+    // Test works with existing status filter
+    Livewire::test(ListArticles::class)
+        ->filterTable('status', $midArticle->status->value)
+        ->filterTable('created_at', [
+            'created_from' => now()->subDays(6)->format('Y-m-d'),
+            'created_until' => now()->subDays(4)->format('Y-m-d'),
+        ])
+        ->assertCanSeeTableRecords([$midArticle])
+        ->assertCanNotSeeTableRecords([$oldArticle, $newArticle]);
+});
+
 it('article edit page has no delete action', function () {
     actingAs($this->admin);
     $article = Article::factory()->create();

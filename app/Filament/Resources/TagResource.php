@@ -48,6 +48,7 @@ class TagResource extends Resource
                     }),
                 Forms\Components\TextInput::make('slug')
                     ->required()
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->maxLength(255)
                     ->unique(Tag::class, 'slug', ignoreRecord: true),
             ]);

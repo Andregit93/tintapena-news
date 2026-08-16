@@ -81,6 +81,14 @@ it('category slug is required and unique', function () {
             'is_active' => true,
         ])
         ->assertHasActionErrors(['slug' => 'unique']);
+        
+    Livewire::test(CategoryResource\Pages\ManageCategories::class)
+        ->callAction('create', data: [
+            'name' => 'Invalid Slug',
+            'slug' => 'invalid slug!',
+            'is_active' => true,
+        ])
+        ->assertHasActionErrors(['slug' => 'regex']);
 });
 
 it('category can be edited and deactivated without deleting related articles', function () {

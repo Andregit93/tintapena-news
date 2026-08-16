@@ -62,10 +62,10 @@
             <div class="mb-4 md:mb-0">
                 <span>Oleh {{ $article->author->name ?? 'Redaksi TINTAPENA' }}</span>
                 <span class="mx-1">&bull;</span>
-                <span>{{ $article->published_at->locale('id')->isoFormat('D MMMM YYYY, HH:mm') }} WIB</span>
+                <span>{{ $article->published_at->timezone('Asia/Jakarta')->locale('id')->isoFormat('D MMMM YYYY, HH:mm') }} WIB</span>
                 @if($article->updated_at && $article->updated_at->gt($article->published_at))
                     <span class="mx-1">&bull;</span>
-                    <span>Diperbarui {{ $article->updated_at->locale('id')->isoFormat('HH:mm') }} WIB</span>
+                    <span>Diperbarui {{ $article->updated_at->timezone('Asia/Jakarta')->locale('id')->isoFormat('HH:mm') }} WIB</span>
                 @endif
             </div>
         </div>
@@ -90,7 +90,7 @@
         
         <!-- Article Body -->
         <div class="prose prose-lg max-w-none prose-a:text-[#1A2BC4] prose-headings:font-bold prose-headings:text-[#17191D] text-[#17191D] prose-p:leading-[1.8] prose-p:mb-6 mb-12">
-            {!! $article->content !!}
+            {!! str($article->content)->sanitizeHtml() !!}
         </div>
         
         <!-- Tags -->

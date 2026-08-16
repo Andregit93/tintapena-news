@@ -47,6 +47,7 @@ class RegionResource extends Resource
                     }),
                 Forms\Components\TextInput::make('slug')
                     ->required()
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->maxLength(255)
                     ->unique(Region::class, 'slug', ignoreRecord: true),
                 Forms\Components\Textarea::make('description')
