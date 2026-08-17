@@ -28,6 +28,7 @@ class GetAdvertisementsForPlacement
         }
 
         return Advertisement::query()
+            ->currentlyVisible()
             ->with('media')
             ->where('placement_key', $placementKey)
             ->orderBy('sort_order', 'asc')
