@@ -603,4 +603,5 @@ it('preview displays alt text/caption/photo_credit correctly', function () {
     $response->assertSee('Custom Alt Text View');
     $response->assertSee('Custom Caption View');
     $response->assertSee('Custom Credit View');
+    $response->assertSee(\Illuminate\Support\Facades\Storage::disk($media->disk)->url($media->path), false);
 });

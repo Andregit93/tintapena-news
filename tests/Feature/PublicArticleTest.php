@@ -76,7 +76,7 @@ it('renders article details correctly', function () {
         'caption' => 'Caption Image',
         'photo_credit' => 'Credit Image'
     ]);
-    
+
     $article = Article::factory()->create([
         'status' => ArticleStatus::Published,
         'published_at' => now()->subDay(),
@@ -87,7 +87,7 @@ it('renders article details correctly', function () {
         'region_id' => $region->id,
         'featured_media_id' => $media->id,
     ]);
-    
+
     $tag = Tag::factory()->create(['name' => 'Test Tag']);
     $article->tags()->attach($tag);
 
@@ -209,17 +209,88 @@ it('renders correct canonical url', function () {
         ->assertSee('rel="canonical" href="' . $canonicalUrl . '"', false);
 });
 
-it('does not increment views_count', function () {
+it('increments views_count and creates a single view stat bucket for same-hour requests', function () {
     $article = Article::factory()->create([
         'status' => ArticleStatus::Published,
         'published_at' => now()->subDay(),
         'views_count' => 0,
     ]);
 
-    $this->get(route('articles.show', $article))
-        ->assertStatus(200);
+    $this->freezeTime(function (\Illuminate\Support\Carbon $time) use ($article) {
+        $this->get(route('articles.show', $article))->assertStatus(200);
+        $this->get(route('articles.show', $article))->assertStatus(200);
+
+        expect($article->refresh()->views_count)->toBe(2);
+
+        $stats = \App\Models\ArticleViewStat::where('article_id', $article->id)->get();
+        expect($stats->count())->toBe(1);
+        expect($stats->first()->views_count)->toBe(2);
+    });
+});
+
+it('creates two separate view stat buckets across hour rollover', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => now()->subDay(),
+        'views_count' => 0,
+    ]);
+
+    // First request
+    $this->get(route('articles.show', $article))->assertStatus(200);
+
+    // Second request in next hour
+    $this->travel(1)->hours();
+    $this->get(route('articles.show', $article))->assertStatus(200);
+    $this->travelBack();
+
+    expect($article->refresh()->views_count)->toBe(2);
+
+    $stats = \App\Models\ArticleViewStat::where('article_id', $article->id)->get();
+    expect($stats->count())->toBe(2);
+    expect($stats[0]->views_count)->toBe(1);
+    expect($stats[1]->views_count)->toBe(1);
+});
+
+it('does not record views directly if published_at is null', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => null,
+        'views_count' => 0,
+    ]);
+
+    $action = new \App\Actions\Articles\RecordArticleView();
+    $action->execute($article);
 
     expect($article->refresh()->views_count)->toBe(0);
+    expect(\App\Models\ArticleViewStat::where('article_id', $article->id)->count())->toBe(0);
+});
+
+it('does not record views directly if published_at is in the future', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Published,
+        'published_at' => now('UTC')->addHour(),
+        'views_count' => 0,
+    ]);
+
+    $action = new \App\Actions\Articles\RecordArticleView();
+    $action->execute($article);
+
+    expect($article->refresh()->views_count)->toBe(0);
+    expect(\App\Models\ArticleViewStat::where('article_id', $article->id)->count())->toBe(0);
+});
+
+it('does not record views directly if status is not published', function () {
+    $article = Article::factory()->create([
+        'status' => ArticleStatus::Draft,
+        'published_at' => now()->subDay(),
+        'views_count' => 0,
+    ]);
+
+    $action = new \App\Actions\Articles\RecordArticleView();
+    $action->execute($article);
+
+    expect($article->refresh()->views_count)->toBe(0);
+    expect(\App\Models\ArticleViewStat::where('article_id', $article->id)->count())->toBe(0);
 });
 
 it('safely HTML-escapes SEO fields', function () {
@@ -237,7 +308,7 @@ it('safely HTML-escapes SEO fields', function () {
     // Verify it doesn't see the unescaped script tag in metadata output
     $response->assertDontSee('<title>SEO <script>alert("xss")</script></title>', false);
     $response->assertDontSee('content="Meta <script>alert("xss")</script>"', false);
-    
+
     // Verify it sees the escaped version
     $response->assertSee(e('SEO <script>alert("xss")</script>'), false);
     $response->assertSee(e('Meta <script>alert("xss")</script>'), false);
@@ -256,7 +327,7 @@ it('sanitizes malicious HTML in article content', function () {
     // Should still contain safe tags
     $response->assertSee('<p>Safe paragraph</p>', false);
     $response->assertSee('<strong>Safe bold</strong>', false);
-    
+
     // Should NOT contain dangerous content
     $response->assertDontSee('<script>alert(1)</script>', false);
     $response->assertDontSee('onerror=', false);
@@ -267,9 +338,9 @@ it('displays published_at and updated_at in Asia/Jakarta timezone', function () 
     // Set current time to a specific UTC instant
     $utcTime = Carbon::create(2026, 8, 16, 3, 0, 0, 'UTC');
     Carbon::setTestNow($utcTime);
-    
+
     // 03:00 UTC = 10:00 WIB
-    
+
     $article = Article::factory()->create([
         'status' => ArticleStatus::Published,
         'published_at' => $utcTime,
@@ -281,10 +352,10 @@ it('displays published_at and updated_at in Asia/Jakarta timezone', function () 
 
     // Verify it displays WIB 10:00 for published_at
     $response->assertSee('16 Agustus 2026, 10:00 WIB');
-    
+
     // Verify it displays WIB 12:00 for updated_at
     $response->assertSee('Diperbarui 12:00 WIB');
-    
+
     Carbon::setTestNow(); // reset
 });
 
@@ -298,11 +369,11 @@ it('shows related article from same category and excludes self', function () {
     $related = Article::factory()->published()->create(['category_id' => $category->id]);
 
     $response = $this->get(route('articles.show', $article));
-    
+
     $response->assertStatus(200);
     $response->assertSee('BERITA TERKAIT');
     $response->assertSee($related->title);
-    
+
     $response->assertViewHas('relatedArticles', function ($relatedArticles) use ($article) {
         return !$relatedArticles->contains('id', $article->id);
     });
@@ -311,7 +382,7 @@ it('shows related article from same category and excludes self', function () {
 it('does not show Draft, Scheduled, Archived, or future Published as related', function () {
     $category = Category::factory()->create();
     $article = Article::factory()->published()->create(['category_id' => $category->id]);
-    
+
     $draft = Article::factory()->draft()->create(['category_id' => $category->id, 'title' => 'Draft Title']);
     $scheduled = Article::factory()->scheduled()->create(['category_id' => $category->id, 'title' => 'Scheduled Title']);
     $archived = Article::factory()->archived()->create(['category_id' => $category->id, 'title' => 'Archived Title']);
@@ -319,7 +390,7 @@ it('does not show Draft, Scheduled, Archived, or future Published as related', f
 
     $response = $this->get(route('articles.show', $article));
     $response->assertStatus(200);
-    
+
     $response->assertDontSee('Draft Title');
     $response->assertDontSee('Scheduled Title');
     $response->assertDontSee('Archived Title');
@@ -329,7 +400,7 @@ it('does not show Draft, Scheduled, Archived, or future Published as related', f
 it('does not show article from another category as related', function () {
     $category1 = Category::factory()->create();
     $category2 = Category::factory()->create();
-    
+
     $article = Article::factory()->published()->create(['category_id' => $category1->id]);
     $other = Article::factory()->published()->create(['category_id' => $category2->id, 'title' => 'Other Category Title']);
 
@@ -340,7 +411,7 @@ it('does not show article from another category as related', function () {
 it('orders related articles newest first and limits to 4', function () {
     $category = Category::factory()->create();
     $article = Article::factory()->published()->create(['category_id' => $category->id]);
-    
+
     // Create 5 related articles with different dates
     $a1 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 1', 'published_at' => now()->subDays(5)]);
     $a2 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 2', 'published_at' => now()->subDays(4)]);
@@ -349,20 +420,20 @@ it('orders related articles newest first and limits to 4', function () {
     $a5 = Article::factory()->published()->create(['category_id' => $category->id, 'title' => 'Related 5', 'published_at' => now()->subDays(1)]);
 
     $response = $this->get(route('articles.show', $article));
-    
+
     // a5 is newest, then a4, a3, a2. a1 should be excluded by limit(4).
     $response->assertSee('Related 5');
     $response->assertSee('Related 4');
     $response->assertSee('Related 3');
     $response->assertSee('Related 2');
     $response->assertDontSee('Related 1');
-    
+
     // Check order (string position)
     $pos5 = strpos($response->getContent(), 'Related 5');
     $pos4 = strpos($response->getContent(), 'Related 4');
     $pos3 = strpos($response->getContent(), 'Related 3');
     $pos2 = strpos($response->getContent(), 'Related 2');
-    
+
     expect($pos5 < $pos4)->toBeTrue();
     expect($pos4 < $pos3)->toBeTrue();
     expect($pos3 < $pos2)->toBeTrue();
@@ -371,7 +442,7 @@ it('orders related articles newest first and limits to 4', function () {
 it('remains 200 when no related articles exist', function () {
     $category = Category::factory()->create();
     $article = Article::factory()->published()->create(['category_id' => $category->id]);
-    
+
     $response = $this->get(route('articles.show', $article));
     $response->assertStatus(200);
     $response->assertDontSee('BERITA TERKAIT');
@@ -385,7 +456,7 @@ it('renders social share controls with wrapping behavior and correctly encoded c
     $article = Article::factory()->published()->create([
         'title' => 'Test Article "Share" & Co'
     ]);
-    
+
     $canonicalUrl = route('articles.show', $article);
     $encodedUrl = urlencode($canonicalUrl);
     $encodedTitleAndUrl = rawurlencode($article->title . ' ' . $canonicalUrl);
@@ -393,24 +464,47 @@ it('renders social share controls with wrapping behavior and correctly encoded c
 
     $response = $this->get(route('articles.show', $article));
     $response->assertStatus(200);
-    
+
     // Wrapper wrapping behavior
     $response->assertSee('flex flex-wrap items-center gap-2 sm:gap-3', false);
-    
+
     // WhatsApp
     $response->assertSee('WhatsApp');
     $response->assertSee('https://api.whatsapp.com/send?text=' . $encodedTitleAndUrl, false);
-    
+
     // Facebook
     $response->assertSee('Facebook');
     $response->assertSee('https://www.facebook.com/sharer/sharer.php?u=' . $encodedUrl, false);
-    
+
     // X
     $response->assertSee('X');
     $response->assertSee('https://twitter.com/intent/tweet?text=' . $encodedTitle . '&url=' . $encodedUrl, false);
-    
+
     // Copy Link (Salin Tautan)
     $response->assertSee('Salin Tautan');
     $response->assertSee("data-copy-url=\"{$canonicalUrl}\"", false);
     $response->assertDontSee("x-data=\"{ copied: false, url: '{$canonicalUrl}' }\"", false);
+});
+
+it('renders Alpine directives and fallback text for Salin Tautan', function () {
+    $article = Article::factory()->published()->create();
+
+    $response = $this->get(route('articles.show', $article));
+    $response->assertStatus(200);
+
+    // Check fallback text is inside the span for pre-hydration rendering
+    $response->assertSee('x-text="copied ? \'Tersalin\' : \'Salin Tautan\'">Salin Tautan</span>', false);
+
+    // Check Alpine x-data exists on the button
+    $response->assertSee('x-data="{ copied: false }"', false);
+});
+
+it('renders Babel dropdown with correct Alpine and accessibility attributes', function () {
+    $response = $this->get(route('home'));
+    $response->assertStatus(200);
+
+    $response->assertSee('@click="open = !open"', false);
+    $response->assertSee(':aria-expanded="open.toString()"', false);
+    $response->assertSee('@click.outside="open = false"', false);
+    $response->assertSee('@keydown.escape.window="open = false"', false);
 });

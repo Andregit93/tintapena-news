@@ -21,6 +21,8 @@ class ArticleController extends Controller
             ->limit(4)
             ->get();
 
+        app(\App\Actions\Articles\RecordArticleView::class)->execute($article);
+
         return view('articles.show', compact('article', 'relatedArticles'));
     }
 }

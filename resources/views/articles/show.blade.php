@@ -157,7 +157,7 @@
                         }
                     "
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded font-medium text-sm hover:bg-gray-200 transition">
-                    <span x-text="copied ? 'Tersalin' : 'Salin Tautan'"></span>
+                    <span x-text="copied ? 'Tersalin' : 'Salin Tautan'">Salin Tautan</span>
                 </button>
             </div>
         </div>

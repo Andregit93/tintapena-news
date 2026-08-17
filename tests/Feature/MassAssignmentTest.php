@@ -89,3 +89,20 @@ it('prevents mass assignment of protected media fields', function () {
     expect($media->width)->toBe(800);
     expect($media->height)->toBe(600);
 });
+
+it('prevents mass assignment of ArticleViewStat system fields', function () {
+    $stat = new \App\Models\ArticleViewStat();
+
+    try {
+        $stat->fill([
+            'article_id' => 1,
+            'period_start' => now(),
+            'views_count' => 50,
+        ]);
+    } catch (\Illuminate\Database\Eloquent\MassAssignmentException $e) {
+        expect(true)->toBeTrue();
+        return;
+    }
+
+    $this->fail('MassAssignmentException was not thrown');
+});
