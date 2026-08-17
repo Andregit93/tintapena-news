@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LatestNewsController;
@@ -9,9 +10,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
 Route::get('/terbaru', [LatestNewsController::class, 'index'])->name('articles.latest');

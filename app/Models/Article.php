@@ -75,4 +75,20 @@ class Article extends Model
         $query->where('status', ArticleStatus::Published)
               ->where('published_at', '<=', now());
     }
+
+    /**
+     * Scope a query to include period views summary and filter articles having views in the period.
+     */
+    public function scopeWithPeriodViews(Builder $query, \Carbon\Carbon $from, \Carbon\Carbon $now): void
+    {
+        $query->whereHas('viewStats', function ($q) use ($from, $now) {
+                $q->where('period_start', '>=', $from)
+                  ->where('period_start', '<=', $now)
+                  ->where('views_count', '>', 0);
+            })
+            ->withSum(['viewStats as period_views' => function ($q) use ($from, $now) {
+                $q->where('period_start', '>=', $from)
+                  ->where('period_start', '<=', $now);
+            }], 'views_count');
+    }
 }
