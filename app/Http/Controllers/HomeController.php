@@ -16,6 +16,21 @@ class HomeController extends Controller
         $now = now();
         $from24h = $now->copy()->subHours(24);
 
+        $breakingNews = \App\Models\BreakingNews::currentlyVisible($now)
+            ->with('article')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->filter(function ($item) use ($now) {
+                if ($item->article_id) {
+                    return $item->article &&
+                           $item->article->status === \App\Enums\ArticleStatus::Published &&
+                           $item->article->published_at &&
+                           $item->article->published_at <= $now;
+                }
+                return true;
+            })->values();
+
         $slots = HomepageSlot::with([
             'article' => fn($q) => $q->published()->with(['category', 'region', 'featuredMedia'])
         ])->where('is_active', true)->orderBy('sort_order')->get();
@@ -103,6 +118,7 @@ class HomeController extends Controller
             ->get();
 
         return view('pages.home', compact(
+            'breakingNews',
             'headlineMain',
             'supportingHeadlines',
             'editorPicks',

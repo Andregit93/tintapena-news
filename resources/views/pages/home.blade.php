@@ -6,6 +6,9 @@
 <div class="bg-white md:bg-transparent min-h-screen">
     <div class="max-w-[1240px] mx-auto px-4 md:px-8 py-8 md:py-12">
         
+        <!-- BREAKING NEWS TICKER -->
+        <x-news.breaking-ticker :breakingNews="$breakingNews" />
+
         <!-- HEADLINE AREA -->
         @if($headlineMain || $supportingHeadlines->isNotEmpty())
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
