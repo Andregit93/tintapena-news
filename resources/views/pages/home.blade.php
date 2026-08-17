@@ -9,6 +9,9 @@
         <!-- BREAKING NEWS TICKER -->
         <x-news.breaking-ticker :breakingNews="$breakingNews" />
 
+        <!-- HOMEPAGE TOP ADS -->
+        <x-ads.slot position="homepage_top" />
+
         <!-- HEADLINE AREA -->
         @if($headlineMain || $supportingHeadlines->isNotEmpty())
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -143,6 +146,9 @@
                 @endif
             </div>
         </div>
+
+        <!-- HOMEPAGE MIDDLE ADS -->
+        <x-ads.slot position="homepage_middle" />
 
         <!-- BANGKA BELITUNG -->
         @if($regionalArticles->isNotEmpty())

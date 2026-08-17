@@ -29,6 +29,9 @@
             @endif
         </div>
 
+        <!-- CATEGORY ADS -->
+        <x-ads.slot position="category_sidebar" />
+
         @if($articles->isEmpty())
             <!-- Empty State -->
             <div class="py-20 text-center bg-gray-50 rounded-lg border border-gray-100">

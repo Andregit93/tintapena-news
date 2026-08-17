@@ -90,6 +90,9 @@
             </div>
         @endif
         
+        <!-- ARTICLE INLINE ADS -->
+        <x-ads.slot position="article_inline" />
+
         <!-- Article Body -->
         <div class="article-content">
             {!! str($article->content)->sanitizeHtml() !!}
@@ -161,6 +164,9 @@
                 </button>
             </div>
         </div>
+
+        <!-- ARTICLE SIDEBAR ADS -->
+        <x-ads.slot position="article_sidebar" />
 
         <!-- Related News -->
         @if(isset($relatedArticles) && $relatedArticles->isNotEmpty())
