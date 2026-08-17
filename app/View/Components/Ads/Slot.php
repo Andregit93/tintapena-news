@@ -18,7 +18,17 @@ class Slot extends Component
     public function __construct(string $position, GetAdvertisementsForPlacement $getAdvertisementsForPlacement)
     {
         $this->position = $position;
-        $this->advertisements = $getAdvertisementsForPlacement->execute($position);
+        $this->advertisements = $getAdvertisementsForPlacement->execute($position)
+            ->filter(function ($ad) {
+                if ($ad->type === \App\Enums\AdvertisementType::Image) {
+                    return $ad->media !== null;
+                }
+                if ($ad->type === \App\Enums\AdvertisementType::Script) {
+                    return !empty(trim((string)$ad->content));
+                }
+                return false;
+            })
+            ->values();
     }
 
     /**

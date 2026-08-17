@@ -58,6 +58,8 @@ class AdvertisementPlacementTest extends TestCase
     {
         Advertisement::factory()->create([
             'placement_key' => 'article_inline',
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
         ]);
 
         $response = $this->get(route('home'));
@@ -69,6 +71,8 @@ class AdvertisementPlacementTest extends TestCase
     {
         Advertisement::factory()->create([
             'placement_key' => 'article_sidebar',
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
         ]);
 
         $category = Category::factory()->create();
@@ -82,6 +86,8 @@ class AdvertisementPlacementTest extends TestCase
     {
         Advertisement::factory()->create([
             'placement_key' => 'category_sidebar',
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
         ]);
 
         $article = Article::factory()->published()->create();
@@ -142,7 +148,7 @@ class AdvertisementPlacementTest extends TestCase
         $response->assertDontSee('data-ad-slot="homepage_middle"', false);
     }
 
-    public function test_script_advertisement_content_is_not_emitted_raw_by_slot_component()
+    public function test_script_advertisement_content_is_emitted_raw_by_slot_component_after_ads_004()
     {
         $ad = Advertisement::factory()->create([
             'placement_key' => 'homepage_top',
@@ -152,14 +158,14 @@ class AdvertisementPlacementTest extends TestCase
 
         $response = $this->get(route('home'));
         $response->assertSee('data-ad-slot="homepage_top"', false);
-        $response->assertDontSee('<script>alert("ads-placement-xss")</script>', false);
+        $response->assertSee('<script>alert("ads-placement-xss")</script>', false);
     }
 
     public function test_homepage_contains_only_required_homepage_slot_markers()
     {
-        Advertisement::factory()->create(['placement_key' => 'homepage_top']);
-        Advertisement::factory()->create(['placement_key' => 'homepage_middle']);
-        Advertisement::factory()->create(['placement_key' => 'article_inline']);
+        Advertisement::factory()->create(['placement_key' => 'homepage_top', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
+        Advertisement::factory()->create(['placement_key' => 'homepage_middle', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
+        Advertisement::factory()->create(['placement_key' => 'article_inline', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
 
         $response = $this->get(route('home'));
         $response->assertSee('data-ad-slot="homepage_top"', false);
@@ -169,9 +175,9 @@ class AdvertisementPlacementTest extends TestCase
 
     public function test_article_detail_contains_only_article_placement_markers()
     {
-        Advertisement::factory()->create(['placement_key' => 'article_inline']);
-        Advertisement::factory()->create(['placement_key' => 'article_sidebar']);
-        Advertisement::factory()->create(['placement_key' => 'homepage_top']);
+        Advertisement::factory()->create(['placement_key' => 'article_inline', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
+        Advertisement::factory()->create(['placement_key' => 'article_sidebar', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
+        Advertisement::factory()->create(['placement_key' => 'homepage_top', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
 
         $article = Article::factory()->published()->create();
 
@@ -183,8 +189,8 @@ class AdvertisementPlacementTest extends TestCase
 
     public function test_category_page_contains_only_category_sidebar_marker()
     {
-        Advertisement::factory()->create(['placement_key' => 'category_sidebar']);
-        Advertisement::factory()->create(['placement_key' => 'article_inline']);
+        Advertisement::factory()->create(['placement_key' => 'category_sidebar', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
+        Advertisement::factory()->create(['placement_key' => 'article_inline', 'type' => AdvertisementType::Script, 'content' => 'renderable']);
 
         $category = Category::factory()->create();
 

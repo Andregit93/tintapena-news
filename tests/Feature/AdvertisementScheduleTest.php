@@ -25,6 +25,8 @@ class AdvertisementScheduleTest extends TestCase
     public function test_active_advertisement_with_null_dates_is_visible()
     {
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => null,
@@ -38,6 +40,8 @@ class AdvertisementScheduleTest extends TestCase
     public function test_inactive_advertisement_is_hidden()
     {
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => false,
             'starts_at' => null,
@@ -53,6 +57,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => '2023-01-01 13:00:00',
@@ -68,6 +74,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => '2023-01-01 12:00:00',
@@ -83,6 +91,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => '2023-01-01 11:00:00',
@@ -98,6 +108,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => null,
@@ -113,6 +125,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => null,
@@ -128,6 +142,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => null,
@@ -143,6 +159,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => '2023-01-01 11:00:00',
@@ -158,6 +176,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => false,
             'starts_at' => '2023-01-01 11:00:00',
@@ -241,12 +261,16 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'ends_at' => '2023-01-01 11:00:00', // expired
         ]);
 
         Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'starts_at' => '2023-01-01 13:00:00', // future
@@ -261,16 +285,22 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         $ad1 = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'sort_order' => 10,
         ]);
         $ad2 = Advertisement::factory()->create([ // hidden
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => false,
             'sort_order' => 1,
         ]);
         $ad3 = Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'homepage_top',
             'is_active' => true,
             'sort_order' => 5,
@@ -289,6 +319,8 @@ class AdvertisementScheduleTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2023-01-01 12:00:00'));
 
         Advertisement::factory()->create([
+            'type' => AdvertisementType::Script,
+            'content' => 'renderable',
             'placement_key' => 'article_inline',
             'is_active' => true,
             'starts_at' => '2023-01-01 11:00:00',
@@ -298,7 +330,7 @@ class AdvertisementScheduleTest extends TestCase
         $response->assertDontSee('data-ad-slot="article_inline"', false);
     }
 
-    public function test_malicious_script_content_is_not_emitted_raw_with_schedule()
+    public function test_script_content_is_emitted_raw_when_active_and_scheduled_after_ads_004()
     {
         Advertisement::factory()->create([
             'placement_key' => 'homepage_top',
@@ -309,6 +341,6 @@ class AdvertisementScheduleTest extends TestCase
 
         $response = $this->get(route('home'));
         $response->assertSee('data-ad-slot="homepage_top"', false);
-        $response->assertDontSee('<script>alert("ads-placement-xss")</script>', false);
+        $response->assertSee('<script>alert("ads-placement-xss")</script>', false);
     }
 }
