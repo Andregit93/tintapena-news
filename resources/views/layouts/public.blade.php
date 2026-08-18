@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'TINTAPENA - Menulis Berdasarkan Fakta')</title>
-    <meta name="description" content="@yield('meta_description', 'TINTAPENA adalah portal berita independen yang menyajikan informasi terkini dan terpercaya.')">
+    <title>@yield('title', \App\Support\SiteSettings::siteName() . ' - ' . \App\Support\SiteSettings::tagline())</title>
+    <meta name="description" content="@yield('meta_description', \App\Support\SiteSettings::siteName() . ' adalah portal berita independen yang menyajikan informasi terkini dan terpercaya.')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -44,8 +44,8 @@
         <div class="max-w-[1240px] mx-auto px-4 md:px-8 py-4 md:py-6 flex justify-between items-center relative">
 
             <div class="flex flex-col items-start flex-1 md:flex-none">
-                <a href="{{ route('home') }}" class="text-[#1A2BC4] font-bold text-3xl tracking-tight">TINTAPENA</a>
-                <span class="text-[#5D6470] text-[10px] uppercase font-bold tracking-widest mt-1 hidden md:block">Menulis Berdasarkan Fakta</span>
+                <a href="{{ route('home') }}" class="text-[#1A2BC4] font-bold text-3xl tracking-tight">{{ \App\Support\SiteSettings::siteName() }}</a>
+                <span class="text-[#5D6470] text-[10px] uppercase font-bold tracking-widest mt-1 hidden md:block">{{ \App\Support\SiteSettings::tagline() }}</span>
             </div>
 
             <!-- Hamburger Button (Mobile) -->
@@ -137,8 +137,8 @@
         <div class="max-w-[1240px] mx-auto px-4 md:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                 <div class="col-span-1 md:col-span-1">
-                    <h2 class="text-2xl font-bold mb-2">TINTAPENA</h2>
-                    <p class="text-sm text-gray-400 mb-6 font-semibold uppercase tracking-wider">Menulis Berdasarkan Fakta</p>
+                    <h2 class="text-2xl font-bold mb-2">{{ \App\Support\SiteSettings::siteName() }}</h2>
+                    <p class="text-sm text-gray-400 mb-6 font-semibold uppercase tracking-wider">{{ \App\Support\SiteSettings::tagline() }}</p>
                     <p class="text-xs text-gray-400 leading-relaxed">Portal berita independen yang menyajikan informasi terkini dan terpercaya dari Bangka Belitung dan sekitarnya.</p>
                 </div>
 
@@ -181,7 +181,7 @@
             </div>
 
             <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 text-center md:text-left">
-                <p>&copy; {{ date('Y') }} TINTAPENA. Semua Hak Cipta Dilindungi.</p>
+                <p>&copy; {{ date('Y') }} {{ \App\Support\SiteSettings::siteName() }}. Semua Hak Cipta Dilindungi.</p>
                 <div class="flex space-x-4 mt-4 md:mt-0">
                     <span>Syarat & Ketentuan</span>
                     <span>Kebijakan Privasi</span>
