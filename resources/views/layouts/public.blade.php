@@ -19,6 +19,18 @@
             color: #17191D;
         }
     </style>
+
+    @if ($measurementId = \App\Support\SiteSettings::googleMeasurementId())
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $measurementId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', @js($measurementId));
+        </script>
+    @endif
 </head>
 <body class="bg-[#F6F7F9] min-h-screen flex flex-col">
 

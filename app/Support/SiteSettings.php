@@ -18,6 +18,7 @@ class SiteSettings
                 'social.facebook',
                 'seo.default_title',
                 'seo.default_description',
+                'analytics.google_measurement_id',
             ])->pluck('value', 'setting_key')->toArray();
         }
     }
@@ -66,6 +67,22 @@ class SiteSettings
         $value = self::$settings['seo.default_description'] ?? null;
 
         return filled($value) ? (string) $value : self::siteName().' adalah portal berita independen yang menyajikan informasi terkini dan terpercaya.';
+    }
+
+    public static function googleMeasurementId(): ?string
+    {
+        self::load();
+        $value = self::$settings['analytics.google_measurement_id'] ?? null;
+
+        if (blank($value)) {
+            return null;
+        }
+
+        if (! preg_match('/^G-[A-Z0-9]+$/', (string) $value)) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     protected static function getValidUrl(string $key): ?string
