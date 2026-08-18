@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Enums\PageStatus;
+use Database\Factories\PageFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable(['title', 'slug', 'content', 'seo_title', 'meta_description'])]
 class Page extends Model
 {
-    /** @use HasFactory<\Database\Factories\PageFactory> */
+    /** @use HasFactory<PageFactory> */
     use HasFactory;
 
     protected function casts(): array
@@ -20,6 +21,11 @@ class Page extends Model
             'status' => PageStatus::class,
             'published_at' => 'datetime',
         ];
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', PageStatus::Published->value);
     }
 
     public function creator(): BelongsTo
