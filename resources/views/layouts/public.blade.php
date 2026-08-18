@@ -35,7 +35,7 @@
                 <div class="flex space-x-4">
                     <span>Tentang Kami</span>
                     <span>Redaksi</span>
-                    <span>Kontak</span>
+                    <a href="{{ route('contact.show') }}" class="hover:text-gray-300 transition-colors">Kontak</a>
                 </div>
             </div>
         </div>
@@ -172,7 +172,7 @@
                     <ul class="space-y-2 text-sm text-gray-400 hidden md:block">
                         <li>Tentang Kami</li>
                         <li>Redaksi</li>
-                        <li>Kontak</li>
+                        <li><a href="{{ route('contact.show') }}" class="hover:text-white transition-colors">Kontak</a></li>
                         <li>Pedoman Media Siber</li>
                         <li>Privacy Policy</li>
                         <li>Disclaimer</li>

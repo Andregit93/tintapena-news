@@ -246,11 +246,13 @@ class PublicPageTest extends TestCase
         Page::factory()->create([
             'status' => PageStatus::Published->value,
             'slug' => 'kontak',
-            'title' => 'Kontak Hijack',
+            'title' => 'Static Kontak Hijack',
         ]);
 
         $response = $this->get('/kontak');
-        $response->assertStatus(404);
+        $response->assertStatus(200);
+        $response->assertViewIs('contact.show');
+        $response->assertDontSee('Static Kontak Hijack');
     }
 
     public function test_catch_all_page_route_is_effectively_after_specific_public_routes()

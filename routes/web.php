@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LatestNewsController;
 use App\Http\Controllers\PageController;
@@ -20,6 +21,7 @@ Route::get('/kategori/{category:slug}', [CategoryController::class, 'show'])->na
 Route::get('/wilayah/{region:slug}', [RegionController::class, 'show'])->name('regions.show');
 Route::get('/topik/{tag:slug}', [TagController::class, 'show'])->name('tags.show');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
+Route::get('/kontak', [ContactController::class, 'show'])->name('contact.show');
 
 // Catch-all static page route MUST be last
 Route::get('/{slug}', [PageController::class, 'show'])->name('pages.show');
