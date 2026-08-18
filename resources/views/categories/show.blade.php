@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Kategori ' . $category->name . ' - TINTAPENA')
+@section('title', 'Kategori ' . $category->name . ' - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('categories.show', ['category' => $category->slug]))
 
 @if($category->description)

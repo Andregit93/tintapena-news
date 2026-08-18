@@ -359,6 +359,7 @@ class SeoSettingsTest extends TestCase
 
     public function test_homepage_page_specific_title_overrides_global_default_title()
     {
+        Setting::factory()->create(['setting_key' => 'general.site_name', 'group_name' => 'general', 'value' => 'Portal Babel']);
         Setting::factory()->create(['setting_key' => 'seo.default_title', 'group_name' => 'seo', 'value' => 'GLOBAL TITLE']);
 
         $reflection = new \ReflectionClass(SiteSettings::class);
@@ -369,12 +370,7 @@ class SeoSettingsTest extends TestCase
         $response = $this->get('/');
         $response->assertStatus(200);
 
-        // Homepage may or may not define a custom @section('title').
-        // Let's check what homepage does!
-        // Wait, TINTAPENA homepage seems to fall back to the layout title or uses 'TINTAPENA - Berita Terkini' if overridden.
-        // I will assert it doesn't see "GLOBAL TITLE" if it overrides it. If it doesn't, it will see "GLOBAL TITLE".
-        // The instructions said: "Homepage currently has a page-specific title. That page-specific title should continue to override global default title."
-
+        $response->assertSee('<title>Beranda - Portal Babel</title>', false);
         $response->assertDontSee('<title>GLOBAL TITLE</title>', false);
     }
 }

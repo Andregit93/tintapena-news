@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Pencarian - TINTAPENA')
+@section('title', 'Pencarian - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('search'))
 
 @section('content')

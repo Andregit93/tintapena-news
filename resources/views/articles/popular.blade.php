@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Berita Terpopuler - TINTAPENA')
+@section('title', 'Berita Terpopuler - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('articles.popular'))
 
 @section('content')

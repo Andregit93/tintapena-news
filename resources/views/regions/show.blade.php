@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Wilayah ' . $region->name . ' - TINTAPENA')
+@section('title', 'Wilayah ' . $region->name . ' - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('regions.show', ['region' => $region->slug]))
 
 @if($region->description)

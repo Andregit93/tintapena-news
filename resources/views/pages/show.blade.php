@@ -15,9 +15,9 @@
     $canonicalUrl = route('pages.show', ['slug' => $page->slug]);
 @endphp
 
-@section('title', e($seoTitle))
-@section('meta_description', e($metaDescription))
-@section('canonical', e($canonicalUrl))
+@section('title', $seoTitle)
+@section('meta_description', $metaDescription)
+@section('canonical', $canonicalUrl)
 
 @section('content')
 <div class="bg-white md:bg-transparent">

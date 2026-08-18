@@ -384,4 +384,19 @@ class AnalyticsSettingsTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/settings/analytics');
         $response->assertDontSee('https://www.googletagmanager.com/gtag/js?id=G-PSW1MY7HB4');
     }
+
+    public function test_no_credential_secret_fields_exist_on_analytics_settings_form()
+    {
+        $admin = User::factory()->create();
+        $response = $this->actingAs($admin)->get('/admin/settings/analytics');
+
+        $response->assertDontSee('API Secret');
+        $response->assertDontSee('Measurement Protocol Secret');
+        $response->assertDontSee('Client Secret');
+        $response->assertDontSee('APP_KEY');
+        $response->assertDontSee('DB_PASSWORD');
+        $response->assertDontSee('SMTP_PASSWORD');
+        $response->assertDontSee('Custom Script');
+        $response->assertDontSee('Tracking Script');
+    }
 }

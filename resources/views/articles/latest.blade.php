@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Berita Terbaru - TINTAPENA')
+@section('title', 'Berita Terbaru - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('articles.latest'))
 
 @section('content')

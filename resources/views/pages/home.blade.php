@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Beranda - TINTAPENA')
+@section('title', 'Beranda - ' . \App\Support\SiteSettings::siteName())
 
 @section('content')
 <div class="bg-white md:bg-transparent min-h-screen">

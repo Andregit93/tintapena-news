@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Topik ' . $tag->name . ' - TINTAPENA')
+@section('title', 'Topik ' . $tag->name . ' - ' . \App\Support\SiteSettings::siteName())
 @section('canonical', route('tags.show', ['tag' => $tag->slug]))
 
 @section('content')

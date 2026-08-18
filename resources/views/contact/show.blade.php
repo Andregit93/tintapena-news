@@ -20,8 +20,8 @@
     $isValidEmail = filled($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
 @endphp
 
-@section('title', 'Kontak - TINTAPENA')
-@section('meta_description', 'Hubungi redaksi TINTAPENA untuk memberikan saran, kritik, atau informasi kerja sama.')
+@section('title', 'Kontak - ' . \App\Support\SiteSettings::siteName())
+@section('meta_description', 'Hubungi redaksi ' . \App\Support\SiteSettings::siteName() . ' untuk memberikan saran, kritik, atau informasi kerja sama.')
 @section('canonical', route('contact.show'))
 
 @section('content')

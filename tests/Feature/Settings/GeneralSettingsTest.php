@@ -3,7 +3,10 @@
 namespace Tests\Feature\Settings;
 
 use App\Filament\Pages\ManageGeneralSettings;
+use App\Models\Category;
+use App\Models\Region;
 use App\Models\Setting;
+use App\Models\Tag;
 use App\Models\User;
 use App\Support\SiteSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -278,5 +281,52 @@ class GeneralSettingsTest extends TestCase
 
         // Should ignore 'secret.key'
         $this->assertEquals(0, Setting::where('setting_key', 'secret.key')->count());
+    }
+
+    public function test_page_specific_titles_use_configured_site_name()
+    {
+        Setting::factory()->create(['setting_key' => 'general.site_name', 'group_name' => 'general', 'value' => 'Portal Babel']);
+
+        $reflection = new \ReflectionClass(SiteSettings::class);
+        $property = $reflection->getProperty('settings');
+        $property->setAccessible(true);
+        $property->setValue(null);
+
+        // Homepage
+        $response = $this->get('/');
+        $response->assertSee('<title>Beranda - Portal Babel</title>', false);
+
+        // Latest
+        $response = $this->get(route('articles.latest'));
+        $response->assertSee('<title>Berita Terbaru - Portal Babel</title>', false);
+
+        // Popular
+        $response = $this->get(route('articles.popular'));
+        $response->assertSee('<title>Berita Terpopuler - Portal Babel</title>', false);
+
+        // Category
+        $category = Category::factory()->create(['name' => 'Politik', 'slug' => 'politik']);
+        $response = $this->get(route('categories.show', ['category' => $category->slug]));
+        $response->assertSee('<title>Kategori Politik - Portal Babel</title>', false);
+
+        // Region
+        $region = Region::factory()->create(['name' => 'Bangka', 'slug' => 'bangka']);
+        $response = $this->get(route('regions.show', ['region' => $region->slug]));
+        $response->assertSee('<title>Wilayah Bangka - Portal Babel</title>', false);
+
+        // Tag
+        $tag = Tag::factory()->create(['name' => 'Ekonomi', 'slug' => 'ekonomi']);
+        $response = $this->get(route('tags.show', ['tag' => $tag->slug]));
+        $response->assertSee('<title>Topik Ekonomi - Portal Babel</title>', false);
+
+        // Search
+        $response = $this->get(route('search'));
+        $response->assertSee('<title>Pencarian - Portal Babel</title>', false);
+
+        // Contact
+        $response = $this->get('/kontak');
+        $response->assertSee('<title>Kontak - Portal Babel</title>', false);
+        $response->assertSee('Hubungi redaksi Portal Babel', false);
+        $response->assertDontSee('Hubungi redaksi TINTAPENA', false);
     }
 }

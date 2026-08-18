@@ -277,7 +277,8 @@ class PublicPageTest extends TestCase
         $response = $this->get('/seo-xss-test');
 
         $response->assertDontSee('<script>alert("seo-xss")</script>', false);
-        $response->assertSee(e(e('Bad </title><script>alert("seo-xss")</script>')), false);
+        $response->assertSee(e('Bad </title><script>alert("seo-xss")</script>'), false);
+        $response->assertDontSee(e(e('Bad </title><script>alert("seo-xss")</script>')), false);
     }
 
     public function test_malicious_meta_description_cannot_break_attribute_or_inject_script()
@@ -291,7 +292,26 @@ class PublicPageTest extends TestCase
         $response = $this->get('/meta-xss-test');
 
         $response->assertDontSee('"><script>alert("meta-xss")</script>', false);
-        $response->assertSee(e(e('"><script>alert("meta-xss")</script>')), false);
+        $response->assertSee(e('"><script>alert("meta-xss")</script>'), false);
+        $response->assertDontSee(e(e('"><script>alert("meta-xss")</script>')), false);
+    }
+
+    public function test_benign_special_characters_in_seo_metadata_are_single_escaped()
+    {
+        Page::factory()->create([
+            'status' => PageStatus::Published->value,
+            'slug' => 'seo-special-chars-test',
+            'seo_title' => 'R&D "Bangka"',
+            'meta_description' => 'News & Analysis "Babel"',
+        ]);
+
+        $response = $this->get('/seo-special-chars-test');
+
+        $response->assertSee('R&amp;D &quot;Bangka&quot;', false);
+        $response->assertDontSee('R&amp;amp;D', false);
+
+        $response->assertSee('News &amp; Analysis &quot;Babel&quot;', false);
+        $response->assertDontSee('&amp;quot;Babel&amp;quot;', false);
     }
 
     public function test_meta_description_fallback_from_content_is_safely_stripped_of_scripts()
