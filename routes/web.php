@@ -22,6 +22,6 @@ Route::get('/wilayah/{region:slug}', [RegionController::class, 'show'])->name('r
 Route::get('/topik/{tag:slug}', [TagController::class, 'show'])->name('tags.show');
 Route::get('/cari', [SearchController::class, 'index'])->name('search');
 Route::get('/kontak', [ContactController::class, 'show'])->name('contact.show');
-
+Route::post('/kontak', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 // Catch-all static page route MUST be last
 Route::get('/{slug}', [PageController::class, 'show'])->name('pages.show');

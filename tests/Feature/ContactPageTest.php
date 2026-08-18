@@ -167,17 +167,6 @@ class ContactPageTest extends TestCase
         $response->assertViewIs('search.index');
     }
 
-    public function test_no_post_kontak_behavior_is_introduced_yet()
-    {
-        $response = $this->post('/kontak', [
-            'name' => 'Test',
-            'email' => 'test@test.com',
-            'message' => 'Hello',
-        ]);
-
-        $response->assertStatus(405); // Method Not Allowed
-    }
-
     public function test_malformed_email_is_not_turned_into_mailto_link()
     {
         Setting::factory()->create([

@@ -38,24 +38,74 @@
             </p>
         </div>
 
-        @if(blank($email) && blank($whatsapp) && blank($address) && blank($hours))
-            <div class="bg-[#F6F7F9] p-8 text-center rounded-lg border border-[#E1E4E8]">
-                <p class="text-[#5D6470] font-medium">Informasi kontak belum tersedia saat ini.</p>
+        @if(session('success'))
+            <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 mb-8">
+                {{ session('success') }}
             </div>
-        @else
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @endif
 
-                @if(filled($address))
-                <div class="bg-white p-6 rounded-lg border border-[#E1E4E8] shadow-sm">
-                    <h3 class="text-lg font-bold text-[#17191D] mb-2 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-[#1A2BC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Alamat Redaksi
-                    </h3>
-                    <p class="text-[#5D6470] whitespace-pre-line">{{ $address }}</p>
-                </div>
-                @endif
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Form Section -->
+            <div class="bg-white p-6 md:p-8 rounded-lg border border-[#E1E4E8] shadow-sm h-fit">
+                <h2 class="text-xl font-bold text-[#17191D] mb-6">Kirim Pesan</h2>
+                <form method="POST" action="{{ route('contact.store') }}">
+                    @csrf
 
-                <div class="flex flex-col gap-6">
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium text-[#17191D] mb-1">Nama</label>
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required maxlength="255" class="w-full px-4 py-2 border border-[#E1E4E8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A2BC4] focus:border-transparent @error('name') border-red-500 @enderror">
+                        @error('name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-[#17191D] mb-1">Email</label>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" required maxlength="255" class="w-full px-4 py-2 border border-[#E1E4E8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A2BC4] focus:border-transparent @error('email') border-red-500 @enderror">
+                        @error('email')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="subject" class="block text-sm font-medium text-[#17191D] mb-1">Subjek</label>
+                        <input type="text" name="subject" id="subject" value="{{ old('subject') }}" required maxlength="255" class="w-full px-4 py-2 border border-[#E1E4E8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A2BC4] focus:border-transparent @error('subject') border-red-500 @enderror">
+                        @error('subject')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="message" class="block text-sm font-medium text-[#17191D] mb-1">Pesan</label>
+                        <textarea name="message" id="message" rows="5" required maxlength="10000" class="w-full px-4 py-2 border border-[#E1E4E8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A2BC4] focus:border-transparent @error('message') border-red-500 @enderror">{{ old('message') }}</textarea>
+                        @error('message')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#1A2BC4] hover:bg-blue-800 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200">
+                        Kirim Pesan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contact Info Section -->
+            <div class="flex flex-col gap-6">
+                @if(blank($email) && blank($whatsapp) && blank($address) && blank($hours))
+                    <div class="bg-[#F6F7F9] p-8 text-center rounded-lg border border-[#E1E4E8]">
+                        <p class="text-[#5D6470] font-medium">Informasi kontak belum tersedia saat ini.</p>
+                    </div>
+                @else
+                    @if(filled($address))
+                    <div class="bg-white p-6 rounded-lg border border-[#E1E4E8] shadow-sm">
+                        <h3 class="text-lg font-bold text-[#17191D] mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-[#1A2BC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Alamat Redaksi
+                        </h3>
+                        <p class="text-[#5D6470] whitespace-pre-line">{{ $address }}</p>
+                    </div>
+                    @endif
+
                     @if(filled($email))
                     <div class="bg-white p-6 rounded-lg border border-[#E1E4E8] shadow-sm">
                         <h3 class="text-lg font-bold text-[#17191D] mb-2 flex items-center gap-2">
@@ -93,9 +143,9 @@
                         <p class="text-[#5D6470] whitespace-pre-line">{{ $hours }}</p>
                     </div>
                     @endif
-                </div>
+                @endif
             </div>
-        @endif
+        </div>
     </div>
 </div>
 @endsection
