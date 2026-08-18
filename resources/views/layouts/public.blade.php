@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', \App\Support\SiteSettings::siteName() . ' - ' . \App\Support\SiteSettings::tagline())</title>
-    <meta name="description" content="@yield('meta_description', \App\Support\SiteSettings::siteName() . ' adalah portal berita independen yang menyajikan informasi terkini dan terpercaya.')">
+    <title>@yield('title', \App\Support\SiteSettings::defaultSeoTitle())</title>
+    <meta name="description" content="@yield('meta_description', \App\Support\SiteSettings::defaultSeoDescription())">
     <link rel="canonical" href="@yield('canonical', url()->current())">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

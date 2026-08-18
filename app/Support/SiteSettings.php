@@ -16,6 +16,8 @@ class SiteSettings
                 'general.tagline',
                 'social.instagram',
                 'social.facebook',
+                'seo.default_title',
+                'seo.default_description',
             ])->pluck('value', 'setting_key')->toArray();
         }
     }
@@ -48,6 +50,22 @@ class SiteSettings
         self::load();
 
         return self::getValidUrl('social.facebook');
+    }
+
+    public static function defaultSeoTitle(): string
+    {
+        self::load();
+        $value = self::$settings['seo.default_title'] ?? null;
+
+        return filled($value) ? (string) $value : self::siteName().' - '.self::tagline();
+    }
+
+    public static function defaultSeoDescription(): string
+    {
+        self::load();
+        $value = self::$settings['seo.default_description'] ?? null;
+
+        return filled($value) ? (string) $value : self::siteName().' adalah portal berita independen yang menyajikan informasi terkini dan terpercaya.';
     }
 
     protected static function getValidUrl(string $key): ?string
