@@ -13,8 +13,8 @@ class SitemapController extends Controller
      */
     public function index(): Response
     {
-        $articles = Article::published()->select('slug', 'published_at')->get();
-        $pages = Page::published()->select('slug', 'updated_at')->get();
+        $articles = Article::published()->select('slug')->get();
+        $pages = Page::published()->select('slug')->get();
 
         return response()->view('sitemap.index', [
             'articles' => $articles,
